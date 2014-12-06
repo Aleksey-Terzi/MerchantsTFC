@@ -1,0 +1,16 @@
+[
+{
+  "modid": "MerchantsTFC",
+  "name": "Merchants",
+  "description": "Merchants Addon for TFC.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Aleksey Terzi"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

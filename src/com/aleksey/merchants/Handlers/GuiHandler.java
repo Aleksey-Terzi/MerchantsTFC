@@ -1,0 +1,58 @@
+package com.aleksey.merchants.Handlers;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+
+import com.aleksey.merchants.Containers.ContainerStall;
+import com.aleksey.merchants.GUI.GuiStall;
+import com.aleksey.merchants.TileEntities.TileEntityStall;
+
+import cpw.mods.fml.common.network.IGuiHandler;
+
+public class GuiHandler implements IGuiHandler
+{
+    public static final int GuiOwnerStall = 0;
+    public static final int GuiBuyerStall = 1;
+    
+    @Override
+    public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) 
+    {
+        TileEntity te = world.getTileEntity(x, y, z);
+
+        switch(id)
+        {
+            case GuiOwnerStall:
+                return new ContainerStall(player.inventory, (TileEntityStall)te, true, world, x, y, z);
+            case GuiBuyerStall:
+                return new ContainerStall(player.inventory, (TileEntityStall)te, false, world, x, y, z);
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    {
+        TileEntity te;
+        
+        try
+        {
+            te = world.getTileEntity(x, y, z);
+        }
+        catch(Exception e)
+        {
+            te = null;
+        }
+
+        switch(id)
+        {
+            case GuiOwnerStall:
+                return new GuiStall(player.inventory, (TileEntityStall)te, true, world, x, y, z);
+            case GuiBuyerStall:
+                return new GuiStall(player.inventory, (TileEntityStall)te, false, world, x, y, z);
+            default:
+                return null;
+        }
+    }
+}

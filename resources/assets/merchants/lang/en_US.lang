@@ -1,0 +1,13 @@
+tile.Stall.name=Stall
+
+gui.Stall.Prices=Prices
+gui.Stall.Goods=Goods
+gui.Stall.Clear=Clear
+gui.Stall.Title=Stall
+gui.Stall.Warehouse=Warehouse
+gui.Stall.HasPrices=Price List Specified
+gui.Stall.NotEnoughGoods=No Goods
+gui.Stall.CanBuy=Can Buy
+gui.Stall.NoPays=You don't have enough items for payment
+gui.Stall.NoPaysSpace=Not enough space for payment items in warehouse
+gui.Stall.NoGoods=Not enough goods in warehouse
