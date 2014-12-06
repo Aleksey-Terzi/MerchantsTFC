@@ -19,6 +19,8 @@ import com.aleksey.merchants.TileEntities.TileEntityStall;
 import com.bioxx.tfc.Containers.ContainerTFC;
 import com.bioxx.tfc.Containers.Slots.SlotForShowOnly;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
+import com.bioxx.tfc.Food.ItemFoodTFC;
+import com.bioxx.tfc.api.Interfaces.IFood;
 
 public class ContainerStall extends ContainerTFC
 {   
@@ -212,16 +214,25 @@ public class ContainerStall extends ContainerTFC
             return;
 
         boolean isBookSlot = isBookSlot(slot.slotNumber);
-        int sizeToPut = mouseButton == 0 && !isBookSlot ? playerItemStack.stackSize : 1;
+        boolean isFood = !isPlayerSlot && playerItemStack.getItem() instanceof IFood;
+        
+        int sizeToPut = mouseButton == 0 && !isBookSlot && !isFood ? playerItemStack.stackSize : 1;
 
         if (sizeToPut > slot.getSlotStackLimit())
             sizeToPut = slot.getSlotStackLimit();
         
         if (sizeToPut > 0 && playerItemStack.stackSize >= sizeToPut)
         {
-            ItemStack stack = isBookSlot || isPlayerSlot
-                ? playerItemStack.splitStack(sizeToPut)
-                : playerItemStack.copy().splitStack(sizeToPut);
+            ItemStack stack;
+                
+            if(isFood)
+                stack = getFoodItemStack(playerItemStack, mouseButton == 0);
+            else
+            {
+                stack = isBookSlot || isPlayerSlot
+                    ? playerItemStack.splitStack(sizeToPut)
+                    : playerItemStack.copy().splitStack(sizeToPut);
+            }
             
             slot.putStack(stack);
             
@@ -251,27 +262,38 @@ public class ContainerStall extends ContainerTFC
         ItemStack slotItemStack = slot.getStack();
         boolean isPlayerSlot = isPlayerSlot(slot.slotNumber);
         boolean isBookSlot = isBookSlot(slot.slotNumber);
+        boolean isFood = !isPlayerSlot && slotItemStack.getItem() instanceof IFood;
         
         if (playerItemStack == null)
         {
-            int sizeToGet = mouseButton == 0 ? slotItemStack.stackSize : (slotItemStack.stackSize + 1) / 2;
-            
-            if(sizeToGet == 0)
-                return;
-
-            ItemStack itemToGet = slot.decrStackSize(sizeToGet);
-
-            if(isPlayerSlot || isBookSlot)
-                inventoryplayer.setItemStack(itemToGet);
-            
-            if(isBookSlot)
-                _stall.setWarehouse(null);
-            
-            if (slotItemStack.stackSize == 0)
-                slot.putStack((ItemStack)null);
-
-            if(isPlayerSlot || isBookSlot)
-                slot.onPickupFromSlot(player, inventoryplayer.getItemStack());
+            if(isFood)
+            {
+                if(mouseButton == 0)
+                    slot.putStack((ItemStack)null);
+                else
+                    slot.putStack(splitFoodWeight(slotItemStack));
+            }
+            else
+            {
+                int sizeToGet = mouseButton == 0 ? slotItemStack.stackSize : (slotItemStack.stackSize + 1) / 2;
+                
+                if(sizeToGet == 0)
+                    return;
+        
+                ItemStack itemToGet = slot.decrStackSize(sizeToGet);
+        
+                if(isPlayerSlot || isBookSlot)
+                    inventoryplayer.setItemStack(itemToGet);
+                
+                if(isBookSlot)
+                    _stall.setWarehouse(null);
+                
+                if (slotItemStack.stackSize == 0)
+                    slot.putStack((ItemStack)null);
+        
+                if(isPlayerSlot || isBookSlot)
+                    slot.onPickupFromSlot(player, inventoryplayer.getItemStack());
+            }
             
             return;
         }
@@ -281,26 +303,31 @@ public class ContainerStall extends ContainerTFC
 
         if (ItemHelper.areItemEquals(slotItemStack, playerItemStack))
         {
-            int sizeToPut = mouseButton == 0 && !isBookSlot ? playerItemStack.stackSize : 1;
-
-            if (sizeToPut > slot.getSlotStackLimit() - slotItemStack.stackSize)
-                sizeToPut = slot.getSlotStackLimit() - slotItemStack.stackSize;
-
-            if (sizeToPut > playerItemStack.getMaxStackSize() - slotItemStack.stackSize)
-                sizeToPut = playerItemStack.getMaxStackSize() - slotItemStack.stackSize;
-            
-            if(sizeToPut == 0)
-                return;
-
-            if(isPlayerSlot)
+            if(isFood)
+                addFoodWeight(slotItemStack, playerItemStack, mouseButton == 0);
+            else
             {
-                playerItemStack.splitStack(sizeToPut);
-    
-                if (playerItemStack.stackSize == 0)
-                    inventoryplayer.setItemStack((ItemStack)null);
-            }
+                int sizeToPut = mouseButton == 0 && !isBookSlot && !isFood ? playerItemStack.stackSize : 1;
 
-            slotItemStack.stackSize += sizeToPut;
+                if (sizeToPut > slot.getSlotStackLimit() - slotItemStack.stackSize)
+                    sizeToPut = slot.getSlotStackLimit() - slotItemStack.stackSize;
+    
+                if (sizeToPut > playerItemStack.getMaxStackSize() - slotItemStack.stackSize)
+                    sizeToPut = playerItemStack.getMaxStackSize() - slotItemStack.stackSize;
+                
+                if(sizeToPut == 0)
+                    return;
+
+                if(isPlayerSlot)
+                {
+                    playerItemStack.splitStack(sizeToPut);
+        
+                    if (playerItemStack.stackSize == 0)
+                        inventoryplayer.setItemStack((ItemStack)null);
+                }
+
+                slotItemStack.stackSize += sizeToPut;
+            }
         }
         else if (isPlayerSlot)
         {
@@ -309,8 +336,79 @@ public class ContainerStall extends ContainerTFC
         }
         else
         {
-            slot.putStack(playerItemStack.copy());
+            if(playerItemStack.getItem() instanceof IFood)
+                slot.putStack(getFoodItemStack(playerItemStack, true));
+            else
+                slot.putStack(playerItemStack.copy());
         }
+    }
+    
+    private ItemStack splitFoodWeight(ItemStack itemStack)
+    {
+        IFood food = (IFood)itemStack.getItem();
+        
+        float newWeight;
+        
+        newWeight = food.getFoodWeight(itemStack) / 2;
+        newWeight = 10 * (int)(newWeight / 10);
+        
+        if(newWeight == 0)
+            return null;
+        
+        ItemFoodTFC.createTag(itemStack, newWeight);
+        
+        return itemStack;
+    }
+    
+    private ItemStack addFoodWeight(ItemStack slotItemStack, ItemStack playerItemStack, boolean isAll)
+    {
+        IFood food = (IFood)slotItemStack.getItem();
+        
+        float playerWeight;
+        
+        if(isAll)
+        {
+            playerWeight = food.getFoodWeight(playerItemStack);
+            playerWeight = 10 * (int)(playerWeight / 10);
+            
+            if(playerWeight == 0)
+                playerWeight = 10;
+        }
+        else
+            playerWeight = 10;
+        
+        float newSlotWeight = food.getFoodWeight(slotItemStack) + playerWeight;
+        
+        if(newSlotWeight > food.getFoodMaxWeight(slotItemStack))
+            newSlotWeight = food.getFoodMaxWeight(slotItemStack);
+        
+        ItemFoodTFC.createTag(slotItemStack, newSlotWeight);
+        
+        return slotItemStack;
+    }
+    
+    private ItemStack getFoodItemStack(ItemStack srcItemStack, boolean isAll)
+    {
+        float weight;
+        
+        if(isAll)
+        {
+            IFood food = (IFood)srcItemStack.getItem();
+
+            weight = food.getFoodWeight(srcItemStack);
+            weight = 10 * (int)(weight / 10);
+            
+            if(weight == 0)
+                weight = 10;
+        }
+        else
+            weight = 10;
+        
+        ItemStack resultItemStack = srcItemStack.copy();
+        
+        ItemFoodTFC.createTag(resultItemStack, weight);
+        
+        return resultItemStack;
     }
     
     private void putItemToNonEmptySlotBuyer(Slot slot, int mouseButton, EntityPlayer player)

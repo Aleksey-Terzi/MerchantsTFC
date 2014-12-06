@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -73,7 +72,7 @@ public class WarehouseManager
     
     public int getQuantity(ItemStack itemStack)
     {
-        String itemKey = getItemKey(itemStack);
+        String itemKey = ItemHelper.getItemKey(itemStack);
         
         return _quantities.containsKey(itemKey) ? _quantities.get(itemKey): 0;
     }
@@ -99,7 +98,7 @@ public class WarehouseManager
             }
         }
         
-        String key = getItemKey(_preparedGoodItem);
+        String key = ItemHelper.getItemKey(_preparedGoodItem);
 
         _quantities.put(key, _quantities.get(key) - _preparedGoodItem.stackSize);
         
@@ -133,7 +132,7 @@ public class WarehouseManager
             }
         }
         
-        String key = getItemKey(_preparedPayItem);
+        String key = ItemHelper.getItemKey(_preparedPayItem);
         int currentQuantity = _quantities.containsKey(key) ? _quantities.get(key): 0;
 
         _quantities.put(key, currentQuantity + _preparedPayItem.stackSize);
@@ -297,7 +296,7 @@ public class WarehouseManager
             if(itemStack == null)
                 continue;
             
-            String itemKey = getItemKey(itemStack);
+            String itemKey = ItemHelper.getItemKey(itemStack);
             int quantity = itemStack.stackSize;
             
             if(_quantities.containsKey(itemKey))
@@ -305,11 +304,6 @@ public class WarehouseManager
             
             _quantities.put(itemKey, quantity);
         }
-    }
-
-    private static final String getItemKey(ItemStack itemStack)
-    {
-        return String.valueOf(Item.getIdFromItem(itemStack.getItem())) + ":" + String.valueOf(itemStack.getItemDamage());
     }
     
     public void writeToNBT(NBTTagCompound nbt)
