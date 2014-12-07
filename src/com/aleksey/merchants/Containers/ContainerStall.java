@@ -446,9 +446,11 @@ public class ContainerStall extends ContainerTFC
             return;
         }
         
+        int goodQuantity = ItemHelper.getItemStackQuantity(goodItemStack);
+        
         if (!slot.isItemValid(playerItemStack)
             || !ItemHelper.areItemEquals(goodItemStack, playerItemStack)
-            || goodItemStack.stackSize + playerItemStack.stackSize > playerItemStack.getMaxStackSize()
+            || goodQuantity + ItemHelper.getItemStackQuantity(playerItemStack) > ItemHelper.getItemStackMaxQuantity(playerItemStack)
             || !preparePayAndTrade(goodItemStack, payItemStack, player)
             )
         {
@@ -458,8 +460,8 @@ public class ContainerStall extends ContainerTFC
         confirmPay(payItemStack, inventoryplayer);
 
         _stall.confirmTrade();
-
-        playerItemStack.stackSize += goodItemStack.stackSize;
+        
+        ItemHelper.increaseStackQuantity(playerItemStack, goodQuantity);
         
         player.worldObj.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
         
@@ -491,10 +493,13 @@ public class ContainerStall extends ContainerTFC
     
     private boolean preparePay(ItemStack payItemStack, InventoryPlayer inventoryplayer)
     {
-        if(payItemStack == null || payItemStack.stackSize == 0)
+        if(payItemStack == null)
             return false;
         
-        int quantity = payItemStack.stackSize;
+        int quantity = ItemHelper.getItemStackQuantity(payItemStack);
+        
+        if(quantity == 0)
+            return false;
         
         _paySlotIndexes = new ArrayList<Integer>();
         
@@ -502,12 +507,17 @@ public class ContainerStall extends ContainerTFC
         {
             ItemStack invItemStack = inventoryplayer.getStackInSlot(i);
             
-            if(invItemStack == null || invItemStack.stackSize == 0 || !ItemHelper.areItemEquals(payItemStack, invItemStack))
+            if(invItemStack == null || !ItemHelper.areItemEquals(payItemStack, invItemStack))
+                continue;
+            
+            int invQuantity = ItemHelper.getItemStackQuantity(invItemStack);
+            
+            if(invQuantity == 0)
                 continue;
             
             _paySlotIndexes.add(i);
             
-            quantity -= invItemStack.stackSize;
+            quantity -= invQuantity;
         }
         
         return quantity <= 0;
@@ -515,16 +525,22 @@ public class ContainerStall extends ContainerTFC
     
     private void confirmPay(ItemStack payItemStack, InventoryPlayer inventoryplayer)
     {
-        int quantity = payItemStack.stackSize;
+        int quantity = ItemHelper.getItemStackQuantity(payItemStack);
         
         for(int i = 0; i < _paySlotIndexes.size(); i++)
         {
             int slotIndex = _paySlotIndexes.get(i);
             ItemStack invItemStack = inventoryplayer.getStackInSlot(slotIndex);
+            int invQuantity = ItemHelper.getItemStackQuantity(invItemStack);
             
-            int sizeToGet = invItemStack.stackSize > quantity ? quantity: invItemStack.stackSize;
+            int sizeToGet = invQuantity > quantity ? quantity: invQuantity;
             
-            inventoryplayer.decrStackSize(slotIndex, sizeToGet);
+            ItemHelper.increaseStackQuantity(invItemStack, -sizeToGet);
+            
+            if(invItemStack.stackSize == 0)
+                inventoryplayer.setInventorySlotContents(slotIndex, (ItemStack)null);
+            
+            inventoryplayer.markDirty();
             
             quantity -= sizeToGet;
         }

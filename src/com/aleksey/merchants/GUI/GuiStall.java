@@ -9,6 +9,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.aleksey.merchants.Containers.ContainerStall;
+import com.aleksey.merchants.Helpers.ItemHelper;
 import com.aleksey.merchants.TileEntities.TileEntityStall;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
 import com.bioxx.tfc.GUI.GuiContainerTFC;
@@ -264,7 +265,7 @@ public class GuiStall extends GuiContainerTFC
             QuantityInfo info = new QuantityInfo();                
             info.Quantity = _stall.getQuantityInWarehouse(itemStack);
             
-            if(info.Quantity < itemStack.stackSize)
+            if(info.Quantity < ItemHelper.getItemStackQuantity(itemStack))
             {
                 info.Color = _colorFailedText;
                 info.ToolTip = StatCollector.translateToLocal("gui.Stall.NotEnoughGoods");

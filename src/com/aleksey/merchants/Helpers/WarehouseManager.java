@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -18,6 +19,8 @@ import com.aleksey.merchants.Core.Point;
 import com.bioxx.tfc.Containers.ContainerChestTFC;
 import com.bioxx.tfc.Containers.Slots.SlotChest;
 import com.bioxx.tfc.TileEntities.TEChest;
+import com.bioxx.tfc.api.Food;
+import com.bioxx.tfc.api.Interfaces.IFood;
 
 public class WarehouseManager
 {
@@ -93,14 +96,20 @@ public class WarehouseManager
             for(int k = 0; k < preparedGood.Items.size(); k++)
             {
                 PreparedItem preparedItem = preparedGood.Items.get(k);
+                ItemStack itemStack = inventory.getStackInSlot(preparedItem.SlotIndex);
                 
-                inventory.decrStackSize(preparedItem.SlotIndex, preparedItem.Quantity);
+                ItemHelper.increaseStackQuantity(itemStack, -preparedItem.Quantity);
+                
+                if(itemStack.stackSize == 0)
+                    inventory.setInventorySlotContents(preparedItem.SlotIndex, (ItemStack)null);
+                
+                inventory.markDirty();
             }
         }
         
         String key = ItemHelper.getItemKey(_preparedGoodItem);
 
-        _quantities.put(key, _quantities.get(key) - _preparedGoodItem.stackSize);
+        _quantities.put(key, _quantities.get(key) - ItemHelper.getItemStackQuantity(_preparedGoodItem));
         
         _preparedGoods = null;
     }
@@ -120,37 +129,37 @@ public class WarehouseManager
                 if(invItemStack == null)
                 {
                     invItemStack = _preparedPayItem.copy();
-                    invItemStack.stackSize = preparedItem.Quantity;
+                    
+                    ItemHelper.setStackQuantity(invItemStack, preparedItem.Quantity);
                     
                     inventory.setInventorySlotContents(preparedItem.SlotIndex, invItemStack);
                 }
                 else
-                {
-                    invItemStack.stackSize += preparedItem.Quantity;
-                    inventory.markDirty();
-                }
+                    ItemHelper.increaseStackQuantity(invItemStack, preparedItem.Quantity);
+                
+                inventory.markDirty();
             }
         }
         
         String key = ItemHelper.getItemKey(_preparedPayItem);
         int currentQuantity = _quantities.containsKey(key) ? _quantities.get(key): 0;
 
-        _quantities.put(key, currentQuantity + _preparedPayItem.stackSize);
+        _quantities.put(key, currentQuantity + ItemHelper.getItemStackQuantity(_preparedPayItem));
         
         _preparedPays = null;
     }
     
     public PrepareTradeResult prepareTrade(ItemStack goodStack, ItemStack payStack, World world)
     {
-        if(goodStack.stackSize == 0 || getQuantity(goodStack) < goodStack.stackSize)
+        int goodQuantity = ItemHelper.getItemStackQuantity(goodStack);
+        int payQuantity = ItemHelper.getItemStackQuantity(payStack);
+        
+        if(goodQuantity == 0 || getQuantity(goodStack) < goodQuantity)
             return PrepareTradeResult.NoGoods;
         
         _preparedGoods = new ArrayList<PreparedGood>();
         _preparedPays = new ArrayList<PreparedGood>();
-        
-        int goodQuantity = goodStack.stackSize;
-        int payQuantity = payStack.stackSize;
-        
+
         for(int i = 0; i < _containers.size() && (goodQuantity > 0 || payQuantity > 0); i++)
         {
             Point p = _containers.get(i); 
@@ -182,13 +191,18 @@ public class WarehouseManager
         {
             ItemStack invItemStack = inventory.getStackInSlot(i);
             
-            if(invItemStack == null || invItemStack.stackSize == 0 || !ItemHelper.areItemEquals(itemStack, invItemStack))
+            if(invItemStack == null || !ItemHelper.areItemEquals(itemStack, invItemStack))
+                continue;
+            
+            int invQuantity = ItemHelper.getItemStackQuantity(invItemStack);
+            
+            if(invQuantity == 0)
                 continue;
             
             if(preparedGood == null)
                 _preparedGoods.add(preparedGood = new PreparedGood(tileEntity));
             
-            PreparedItem preparedItem = new PreparedItem(i, invItemStack.stackSize < quantity ? invItemStack.stackSize: quantity);
+            PreparedItem preparedItem = new PreparedItem(i, invQuantity < quantity ? invQuantity: quantity);
             
             preparedGood.Items.add(preparedItem);
             
@@ -208,24 +222,25 @@ public class WarehouseManager
         IInventory inventory = (IInventory)tileEntity;
         PreparedGood preparedPay = null;
         int quantity = requiredQuantity;
+        int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack);
         
         //Add to non-empty slots
         for(int i = 0; i < inventory.getSizeInventory() && quantity > 0; i++)
         {
             ItemStack invItemStack = inventory.getStackInSlot(i);
             
-            if(invItemStack == null
-                || !ItemHelper.areItemEquals(itemStack, invItemStack)
-                || invItemStack.stackSize >= invItemStack.getMaxStackSize()
-                )
-            {
+            if(invItemStack == null || !ItemHelper.areItemEquals(itemStack, invItemStack))
                 continue;
-            }
+            
+            int invQuantity = ItemHelper.getItemStackQuantity(invItemStack);
+            
+            if(invQuantity >= maxStackQuantity)
+                continue;
             
             if(preparedPay == null)
                 _preparedPays.add(preparedPay = new PreparedGood(tileEntity));
             
-            PreparedItem preparedItem = new PreparedItem(i, invItemStack.getMaxStackSize() - invItemStack.stackSize);
+            PreparedItem preparedItem = new PreparedItem(i, maxStackQuantity - invQuantity);
             
             if(preparedItem.Quantity > quantity)
                 preparedItem.Quantity = quantity;                
@@ -295,10 +310,10 @@ public class WarehouseManager
             
             if(itemStack == null)
                 continue;
-            
+
+            int quantity = ItemHelper.getItemStackQuantity(itemStack);
             String itemKey = ItemHelper.getItemKey(itemStack);
-            int quantity = itemStack.stackSize;
-            
+
             if(_quantities.containsKey(itemKey))
                 quantity += _quantities.get(itemKey);
             

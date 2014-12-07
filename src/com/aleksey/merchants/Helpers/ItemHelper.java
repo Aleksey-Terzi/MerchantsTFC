@@ -13,10 +13,9 @@ public class ItemHelper
         if(itemStack1.getItem() != itemStack2.getItem() || itemStack1.getItemDamage() != itemStack2.getItemDamage())
             return false;
 
-        if(itemStack1.getItem() instanceof IFood)
-            return Food.areEqual(itemStack1, itemStack2);
-        
-        return ItemStack.areItemStackTagsEqual(itemStack1, itemStack2); 
+        return itemStack1.getItem() instanceof IFood
+            ? Food.areEqual(itemStack1, itemStack2)
+            : ItemStack.areItemStackTagsEqual(itemStack1, itemStack2); 
     }
     
     public static final String getItemKey(ItemStack itemStack)
@@ -37,5 +36,47 @@ public class ItemHelper
             ;
         
         return key;
+    }
+    
+    public static final int getItemStackQuantity(ItemStack itemStack)
+    {
+        if(itemStack.getItem() instanceof IFood)
+        {
+            IFood food = (IFood)itemStack.getItem();
+            float foodDecay = Math.max(food.getFoodDecay(itemStack), 0);
+            int quantity = (int)(food.getFoodWeight(itemStack) - foodDecay);
+            
+            return quantity > 0 ? quantity: 0;
+        }
+
+        return itemStack.stackSize;
+    }
+
+    public static final int getItemStackMaxQuantity(ItemStack itemStack)
+    {
+        return itemStack.getItem() instanceof IFood
+            ? (int)((IFood)itemStack.getItem()).getFoodMaxWeight(itemStack)
+            : itemStack.getMaxStackSize();
+    }
+    
+    public static final void increaseStackQuantity(ItemStack itemStack, int quantity)
+    {
+        if(itemStack.getItem() instanceof IFood)
+        {
+            IFood food = (IFood)itemStack.getItem();
+            float newQuantity = food.getFoodWeight(itemStack) + quantity;
+            
+            Food.setWeight(itemStack, newQuantity);
+        }
+        else
+            itemStack.stackSize += quantity;
+    }
+    
+    public static final void setStackQuantity(ItemStack itemStack, int quantity)
+    {
+        if(itemStack.getItem() instanceof IFood)
+            Food.setWeight(itemStack, quantity);
+        else
+            itemStack.stackSize = quantity;
     }
 }
