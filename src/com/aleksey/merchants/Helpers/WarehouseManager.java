@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -15,12 +14,15 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
 
+import com.aleksey.merchants.Containers.Slots.SlotIngotPile;
 import com.aleksey.merchants.Core.Point;
+import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Containers.ContainerChestTFC;
 import com.bioxx.tfc.Containers.Slots.SlotChest;
+import com.bioxx.tfc.Containers.Slots.SlotLogPile;
 import com.bioxx.tfc.TileEntities.TEChest;
-import com.bioxx.tfc.api.Food;
-import com.bioxx.tfc.api.Interfaces.IFood;
+import com.bioxx.tfc.TileEntities.TEIngotPile;
+import com.bioxx.tfc.TileEntities.TELogPile;
 
 public class WarehouseManager
 {
@@ -53,6 +55,8 @@ public class WarehouseManager
     private static final Class<?>[] _allowedInventories = {
         TileEntityChest.class,
         TEChest.class,
+        TELogPile.class,
+        //TEIngotPile.class,
     };
     
     private ArrayList<Point> _containers;
@@ -80,18 +84,20 @@ public class WarehouseManager
         return _quantities.containsKey(itemKey) ? _quantities.get(itemKey): 0;
     }
     
-    public void confirmTrade()
+    public void confirmTrade(World world)
     {
-        confirmTradeGoods();
+        confirmTradeGoods(world);
         confirmTradePays();
     }
     
-    private void confirmTradeGoods()
+    private void confirmTradeGoods(World world)
     {
         for(int i = 0; i < _preparedGoods.size(); i++)
         {
             PreparedGood preparedGood = _preparedGoods.get(i);
             IInventory inventory = (IInventory)preparedGood.TileEntity;
+            
+            openInventory(preparedGood.TileEntity);
             
             for(int k = 0; k < preparedGood.Items.size(); k++)
             {
@@ -105,6 +111,8 @@ public class WarehouseManager
                 
                 inventory.markDirty();
             }
+            
+            closeInventory(preparedGood.TileEntity, world);
         }
         
         String key = ItemHelper.getItemKey(_preparedGoodItem);
@@ -222,7 +230,7 @@ public class WarehouseManager
         IInventory inventory = (IInventory)tileEntity;
         PreparedGood preparedPay = null;
         int quantity = requiredQuantity;
-        int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack);
+        int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack, inventory);
         
         //Add to non-empty slots
         for(int i = 0; i < inventory.getSizeInventory() && quantity > 0; i++)
@@ -387,16 +395,58 @@ public class WarehouseManager
         }
     }
     
+    private void openInventory(TileEntity tileEntity)
+    {
+        IInventory inventory = (IInventory)tileEntity;
+        Class<?> cls = tileEntity.getClass();
+        
+        if(cls == TELogPile.class)
+            inventory.openInventory();
+    }
+    
+    private void closeInventory(TileEntity tileEntity, World world)
+    {
+        IInventory inventory = (IInventory)tileEntity;
+        Class<?> cls = tileEntity.getClass();
+
+        if(cls == TELogPile.class)
+        {
+            inventory.closeInventory();
+        }
+        else if(cls == TEIngotPile.class)
+        {
+            ItemStack ingotPileStack = inventory.getStackInSlot(0); 
+            
+            if (ingotPileStack == null || ingotPileStack.stackSize < 1)
+                world.setBlockToAir(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+            else
+            {
+                ((TEIngotPile)tileEntity).updateNeighbours();
+                tileEntity.validate();
+                world.addBlockEvent(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, TFCBlocks.IngotPile, 0, 0);
+            }
+        }
+        
+        world.markBlockForUpdate(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+    }
+    
     private Slot getSlot(TileEntity tileEntity)
     {
         IInventory inventory = (IInventory)tileEntity;
+        Class<?> cls = tileEntity.getClass();
         
-        if(tileEntity.getClass() == TEChest.class)
+        if(cls == TEChest.class)
             return new SlotChest(inventory, 0, 0, 0).addItemException(ContainerChestTFC.getExceptions());
         
-        if(tileEntity.getClass() == TileEntityChest.class)
+        if(cls == TileEntityChest.class)
             return new Slot(inventory, 0, 0, 0);
         
+        if(cls == TELogPile.class)
+            return new SlotLogPile(null, inventory, 0, 0, 0);
+        
+        if(cls == TEIngotPile.class)
+            return new SlotIngotPile(inventory, 0, 0, 0);
+
         return null;
     }
 

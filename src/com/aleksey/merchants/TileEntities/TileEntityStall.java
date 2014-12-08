@@ -86,7 +86,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
 
     public void confirmTrade()
     {
-        _warehouse.confirmTrade();
+        _warehouse.confirmTrade(this.worldObj);
     }
 
     @Override

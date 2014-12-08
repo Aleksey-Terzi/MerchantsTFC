@@ -1,8 +1,10 @@
 package com.aleksey.merchants.Helpers;
 
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import com.bioxx.tfc.TileEntities.TEIngotPile;
 import com.bioxx.tfc.api.Food;
 import com.bioxx.tfc.api.Interfaces.IFood;
 
@@ -52,11 +54,17 @@ public class ItemHelper
         return itemStack.stackSize;
     }
 
-    public static final int getItemStackMaxQuantity(ItemStack itemStack)
+    public static final int getItemStackMaxQuantity(ItemStack itemStack, IInventory inventory)
     {
-        return itemStack.getItem() instanceof IFood
-            ? (int)((IFood)itemStack.getItem()).getFoodMaxWeight(itemStack)
-            : itemStack.getMaxStackSize();
+        Item item = itemStack.getItem();
+        
+        if(item instanceof IFood)
+            return (int)((IFood)itemStack.getItem()).getFoodMaxWeight(itemStack);
+        
+        if(inventory instanceof TEIngotPile)
+            return inventory.getInventoryStackLimit();
+            
+        return Math.min(itemStack.getMaxStackSize(), inventory.getInventoryStackLimit());
     }
     
     public static final void increaseStackQuantity(ItemStack itemStack, int quantity)

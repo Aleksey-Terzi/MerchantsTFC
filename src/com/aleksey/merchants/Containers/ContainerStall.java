@@ -450,7 +450,7 @@ public class ContainerStall extends ContainerTFC
         
         if (!slot.isItemValid(playerItemStack)
             || !ItemHelper.areItemEquals(goodItemStack, playerItemStack)
-            || goodQuantity + ItemHelper.getItemStackQuantity(playerItemStack) > ItemHelper.getItemStackMaxQuantity(playerItemStack)
+            || goodQuantity + ItemHelper.getItemStackQuantity(playerItemStack) > ItemHelper.getItemStackMaxQuantity(playerItemStack, inventoryplayer)
             || !preparePayAndTrade(goodItemStack, payItemStack, player)
             )
         {
