@@ -252,11 +252,11 @@ public class GuiStall extends GuiContainerTFC
         if(_quantities != null)
             return true;
 
-        _quantities = new QuantityInfo[_container.GoodsSlotIndexes.length];
+        _quantities = new QuantityInfo[TileEntityStall.GoodsSlotIndexes.length];
         
-        for(int i = 0; i < _container.GoodsSlotIndexes.length; i++)
+        for(int i = 0; i < TileEntityStall.GoodsSlotIndexes.length; i++)
         {
-            int slotIndex = _container.GoodsSlotIndexes[i];
+            int slotIndex = TileEntityStall.GoodsSlotIndexes[i];
             ItemStack itemStack = _stall.getStackInSlot(slotIndex);
             
             if(itemStack == null)

@@ -1,5 +1,6 @@
 package com.aleksey.merchants.TileEntities;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -7,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 
+import com.aleksey.merchants.Blocks.Devices.BlockStall;
 import com.aleksey.merchants.Helpers.PrepareTradeResult;
 import com.aleksey.merchants.Helpers.WarehouseManager;
 import com.bioxx.tfc.TileEntities.NetworkTileEntity;
@@ -18,6 +20,9 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
 {
     public static final int PriceCount = 5;
     public static final int ItemCount = 2 * PriceCount + 1;
+
+    public static final int[] PricesSlotIndexes = new int[] { 0, 2, 4, 6, 8 };
+    public static final int[] GoodsSlotIndexes = new int[] { 1, 3, 5, 7 };
 
     private static final byte _actionId_ClearPrices = 0;
     private static final byte _actionId_Buy = 1;
@@ -88,7 +93,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
     {
         _warehouse.confirmTrade(this.worldObj);
     }
-
+    
     @Override
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
@@ -100,6 +105,21 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
     @Override
     public void closeInventory()
     {
+        int newMeta = 0;
+        
+        for(int i = 0; i < _storage.length; i++)
+        {
+            if(_storage[i] != null)
+            {
+                newMeta = 1;
+                break;
+            }
+        }
+        
+        int meta = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
+        
+        if(meta != newMeta)
+            this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, newMeta, 2);
     }
 
     @Override
@@ -201,7 +221,8 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
 
     public void writeStallToNBT(NBTTagCompound nbt)
     {
-        nbt.setString("OwnerUserName", _ownerUserName);
+        if(_ownerUserName != null)
+            nbt.setString("OwnerUserName", _ownerUserName);
 
         NBTTagList itemList = new NBTTagList();
 

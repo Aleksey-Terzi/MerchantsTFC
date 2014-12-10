@@ -16,7 +16,6 @@ import net.minecraft.world.World;
 
 import com.aleksey.merchants.Containers.Slots.SlotIngotPile;
 import com.aleksey.merchants.Core.Point;
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Containers.ContainerChestTFC;
 import com.bioxx.tfc.Containers.Slots.SlotChest;
 import com.bioxx.tfc.Containers.Slots.SlotLogPile;
@@ -87,7 +86,7 @@ public class WarehouseManager
     public void confirmTrade(World world)
     {
         confirmTradeGoods(world);
-        confirmTradePays();
+        confirmTradePays(world);
     }
     
     private void confirmTradeGoods(World world)
@@ -122,12 +121,14 @@ public class WarehouseManager
         _preparedGoods = null;
     }
     
-    private void confirmTradePays()
+    private void confirmTradePays(World world)
     {
         for(int i = 0; i < _preparedPays.size(); i++)
         {
             PreparedGood preparedPay = _preparedPays.get(i);
             IInventory inventory = (IInventory)preparedPay.TileEntity;
+            
+            openInventory(preparedPay.TileEntity);
             
             for(int k = 0; k < preparedPay.Items.size(); k++)
             {
@@ -147,6 +148,8 @@ public class WarehouseManager
                 
                 inventory.markDirty();
             }
+            
+            closeInventory(preparedPay.TileEntity, world);
         }
         
         String key = ItemHelper.getItemKey(_preparedPayItem);
@@ -419,12 +422,14 @@ public class WarehouseManager
             
             if (ingotPileStack == null || ingotPileStack.stackSize < 1)
                 world.setBlockToAir(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+            /*
             else
             {
                 ((TEIngotPile)tileEntity).updateNeighbours();
                 tileEntity.validate();
                 world.addBlockEvent(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, TFCBlocks.IngotPile, 0, 0);
             }
+            */
         }
         
         world.markBlockForUpdate(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);

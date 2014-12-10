@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import com.aleksey.merchants.MerchantsMod;
 import com.aleksey.merchants.Core.BlockList;
 import com.aleksey.merchants.Handlers.GuiHandler;
+import com.aleksey.merchants.Render.Blocks.RenderStall;
 import com.aleksey.merchants.TileEntities.TileEntityStall;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
 import com.bioxx.tfc.Core.TFCTabs;
@@ -29,16 +30,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class BlockStall extends BlockTerraContainer
 {
     @SideOnly(Side.CLIENT)
-    private IIcon _sideIcon;
-      
-    @SideOnly(Side.CLIENT)
     private IIcon _topIcon;
+    private IIcon _topEmptyIcon;
 
     public BlockStall()
     {
         super(Material.wood);
         this.setCreativeTab(TFCTabs.TFCDevices);
-        this.setBlockBounds(0, 0, 0, 1, 1, 1);
+        this.setBlockBounds(0, 0, 0, 1, (float)(RenderStall.VoxelSizeScaled * 10), 1);
     }
 
     @SideOnly(Side.CLIENT)
@@ -46,19 +45,19 @@ public class BlockStall extends BlockTerraContainer
     public void registerBlockIcons(IIconRegister register)
     {
         _topIcon = register.registerIcon("merchants:StallTop");
-        _sideIcon = register.registerIcon("merchants:StallSide");
+        _topEmptyIcon = register.registerIcon("merchants:StallEmptyTop");
     }
 
     @Override
     public IIcon getIcon(int side, int meta)
     {
-        return side <= 1 ? _topIcon: _sideIcon;
+        return meta == 0 ? _topEmptyIcon: _topIcon;
     }
 
     @Override
     public int damageDropped(int meta)
     {
-        return meta;
+        return 0;
     }
 
     @Override
@@ -105,20 +104,24 @@ public class BlockStall extends BlockTerraContainer
      * Called when the block is placed in the world.
      */
     @Override
-    public void onBlockPlacedBy(World world, int i, int j, int k, EntityLivingBase player, ItemStack is)
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack is)
     {
-        super.onBlockPlacedBy(world, i, j, k, player, is);
+        super.onBlockPlacedBy(world, x, y, z, player, is);
         
-        TileEntity te = world.getTileEntity(i, j, k);
+        TileEntity te = world.getTileEntity(x, y, z);
         
         if (te == null || !is.hasTagCompound() || !(te instanceof TileEntityStall))
             return;
 
         TileEntityStall stall = (TileEntityStall)te;
+        NBTTagCompound tag = is.getTagCompound();
 
-        stall.readStallFromNBT(is.getTagCompound());
+        stall.readStallFromNBT(tag);
         
-        world.markBlockForUpdate(i, j, k);
+        if(tag.hasKey("Items"))
+            world.setBlockMetadataWithNotify(x, y, z, 1, 2);
+        
+        world.markBlockForUpdate(x, y, z);
     }
 
     /**

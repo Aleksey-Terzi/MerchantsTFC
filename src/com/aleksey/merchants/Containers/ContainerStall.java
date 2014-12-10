@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
@@ -24,17 +25,16 @@ import com.bioxx.tfc.api.Interfaces.IFood;
 
 public class ContainerStall extends ContainerTFC
 {   
-    public int[] PricesSlotIndexes;
-    public int[] GoodsSlotIndexes;
-    
     private TileEntityStall _stall;
     private boolean _isOwnerMode;
     private ArrayList<Integer> _paySlotIndexes;
+    private World _world;
 
     public ContainerStall(InventoryPlayer inventoryplayer, TileEntityStall stall, boolean isOwnerMode, World world, int x, int y, int z)
     {
         _stall = stall;
         _isOwnerMode = isOwnerMode;
+        _world = world;
 
         buildLayout();
 
@@ -47,19 +47,12 @@ public class ContainerStall extends ContainerTFC
         int y = GuiStall.TopSlotY;
         int index = 0;
         
-        PricesSlotIndexes = new int[TileEntityStall.PriceCount];
-        GoodsSlotIndexes = new int[TileEntityStall.PriceCount];
-        
         for(int i = 0; i < TileEntityStall.PriceCount; i++)
         {
-            PricesSlotIndexes[i] = index;
-            
             if(_isOwnerMode)
                 addSlotToContainer(new SlotStall(_stall, index++, GuiStall.PricesSlotX, y));
             else
                 addSlotToContainer(new SlotForShowOnly(_stall, index++, GuiStall.PricesSlotX, y));
-            
-            GoodsSlotIndexes[i] = index;
             
             addSlotToContainer(new SlotStall(_stall, index++, GuiStall.GoodsSlotX, y));
             
@@ -68,6 +61,15 @@ public class ContainerStall extends ContainerTFC
         
         if(_isOwnerMode)
             addSlotToContainer(new SlotStallBook(_stall, index, GuiStall.BookSlotX, GuiStall.BookSlotY));
+    }
+    
+    @Override
+    public void onContainerClosed(EntityPlayer entityplayer)
+    {
+        super.onContainerClosed(entityplayer);
+
+        if(!_world.isRemote)
+            _stall.closeInventory();
     }
 
     @Override
@@ -434,8 +436,13 @@ public class ContainerStall extends ContainerTFC
             confirmPay(payItemStack, inventoryplayer);
             
             _stall.confirmTrade();
+            
+            ItemStack newItemStack = goodItemStack.copy();
+            
+            if(newItemStack.getItem() instanceof IFood)
+                ItemFoodTFC.createTag(newItemStack, ((IFood)newItemStack.getItem()).getFoodWeight(newItemStack));
 
-            inventoryplayer.setItemStack(goodItemStack.copy());
+            inventoryplayer.setItemStack(newItemStack);
             
             player.worldObj.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
             
@@ -550,10 +557,10 @@ public class ContainerStall extends ContainerTFC
     
     private int getPriceSlotIndex(int goodSlotIndex)
     {
-        for(int i = 0; i < GoodsSlotIndexes.length; i++)
+        for(int i = 0; i < TileEntityStall.GoodsSlotIndexes.length; i++)
         {
-            if(GoodsSlotIndexes[i] == goodSlotIndex)
-                return PricesSlotIndexes[i];
+            if(TileEntityStall.GoodsSlotIndexes[i] == goodSlotIndex)
+                return TileEntityStall.PricesSlotIndexes[i];
         }
         
         return -1;
