@@ -1,6 +1,7 @@
 package com.aleksey.merchants;
 
 import com.aleksey.merchants.Core.BlockList;
+import com.aleksey.merchants.Core.ItemList;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -30,7 +31,7 @@ public class MerchantsMod
         //proxy.registerTickHandler();
         proxy.registerTileEntities();
                 
-        //ItemList.Setup();
+        ItemList.Setup();
         
         proxy.registerGuiHandler();
     }

@@ -1,4 +1,7 @@
 tile.Stall.name=Stall
+tile.Warehouse.name=Warehouse
+
+item.WarehouseBook.name=Warehouse Book
 
 gui.Stall.Prices=Prices
 gui.Stall.Goods=Goods
@@ -11,3 +14,6 @@ gui.Stall.CanBuy=Can Buy
 gui.Stall.NoPays=You don't have enough items for payment
 gui.Stall.NoPaysSpace=Not enough space for payment items in warehouse
 gui.Stall.NoGoods=Not enough goods in warehouse
+
+gui.Warehouse.Title=Warehouse
+gui.Warehouse.Sign=Sign

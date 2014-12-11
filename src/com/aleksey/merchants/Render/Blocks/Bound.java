@@ -37,4 +37,9 @@ public class Bound
         ShiftY = shiftY;
         ShiftZ = shiftZ;
     }
+    
+    public Bound copy()
+    {
+        return new Bound(MinX, MinY, MinZ, MaxX, MaxY, MaxZ, ShiftX, ShiftY, ShiftZ);
+    }
 }

@@ -57,7 +57,6 @@ public class GuiStall extends GuiContainerTFC
     private static final int _colorSuccessText = 0x00AA00;
     private static final int _colorFailedText = 0xAA0000;
 
-    private ContainerStall _container;
     private TileEntityStall _stall;
     private EntityPlayer _player;
     private boolean _isOwnerMode;
@@ -67,7 +66,6 @@ public class GuiStall extends GuiContainerTFC
     {
         super(new ContainerStall(inventoryplayer, stall, isOwnerMode, world, x, y, z), WindowWidth, WindowHeight - 1);
 
-        _container = (ContainerStall)this.inventorySlots;
         _stall = stall;
         _player = inventoryplayer.player;
         _isOwnerMode = isOwnerMode;

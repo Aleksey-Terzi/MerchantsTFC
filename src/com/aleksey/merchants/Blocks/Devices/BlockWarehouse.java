@@ -1,5 +1,6 @@
 package com.aleksey.merchants.Blocks.Devices;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -8,7 +9,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
@@ -19,41 +19,32 @@ import net.minecraft.world.World;
 import com.aleksey.merchants.MerchantsMod;
 import com.aleksey.merchants.Core.BlockList;
 import com.aleksey.merchants.Handlers.GuiHandler;
-import com.aleksey.merchants.Render.Blocks.RenderStall;
-import com.aleksey.merchants.TileEntities.TileEntityStall;
+import com.aleksey.merchants.TileEntities.TileEntityWarehouse;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
 import com.bioxx.tfc.Core.TFCTabs;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockStall extends BlockTerraContainer
+public class BlockWarehouse extends BlockTerraContainer
 {
-    @SideOnly(Side.CLIENT)
-    private IIcon _topIcon;
-    
-    @SideOnly(Side.CLIENT)
-    private IIcon _topEmptyIcon;
-
-    public BlockStall()
+    public BlockWarehouse()
     {
         super(Material.wood);
         this.setCreativeTab(TFCTabs.TFCDevices);
-        this.setBlockBounds(0, 0, 0, 1, (float)(RenderStall.VoxelSizeScaled * 10), 1);
+        this.setBlockBounds(0, 0, 0, 1, 1, 1);
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public void registerBlockIcons(IIconRegister register)
     {
-        _topIcon = register.registerIcon("merchants:StallTop");
-        _topEmptyIcon = register.registerIcon("merchants:StallEmptyTop");
     }
 
     @Override
     public IIcon getIcon(int side, int meta)
     {
-        return meta == 0 ? _topEmptyIcon: _topIcon;
+        return Block.getBlockFromName("planks").getIcon(side, meta);
     }
 
     @Override
@@ -77,7 +68,7 @@ public class BlockStall extends BlockTerraContainer
     @Override
     public int getRenderType()
     {
-        return BlockList.StallRenderId;
+        return BlockList.WarehouseRenderId;
     }
 
     @Override
@@ -85,30 +76,9 @@ public class BlockStall extends BlockTerraContainer
     {
         if (world.isRemote)
             return;
-
-        TileEntityStall te = (TileEntityStall)world.getTileEntity(x, y, z);
         
-        if (te == null)
-            return;
-
-        ItemStack is = new ItemStack(Item.getItemFromBlock(this), 1, 0);
-        NBTTagCompound nbt = writeStallToNBT(te);
-        is.setTagCompound(nbt);
-        EntityItem ei = new EntityItem(world, x, y, z, is);
-        
+        EntityItem ei = new EntityItem(world, x, y, z, new ItemStack(Item.getItemFromBlock(this), 1, 0));
         world.spawnEntityInWorld(ei);
-
-        for(int s = 0; s < te.getSizeInventory(); ++s)
-            te.setInventorySlotContents(s, null);
-    }
-    
-    private NBTTagCompound writeStallToNBT(TileEntityStall te)
-    {
-        NBTTagCompound nbt = new NBTTagCompound();
-        
-        te.writeStallToNBT(nbt);
-
-        return nbt;
     }
 
     /**
@@ -121,16 +91,12 @@ public class BlockStall extends BlockTerraContainer
         
         TileEntity te = world.getTileEntity(x, y, z);
         
-        if (te == null || !is.hasTagCompound() || !(te instanceof TileEntityStall))
+        if (te == null || !(te instanceof TileEntityWarehouse))
             return;
 
-        TileEntityStall stall = (TileEntityStall)te;
-        NBTTagCompound tag = is.getTagCompound();
+        TileEntityWarehouse warehouse = (TileEntityWarehouse)te;
 
-        stall.readStallFromNBT(tag);
-        
-        if(tag.hasKey("Items"))
-            world.setBlockMetadataWithNotify(x, y, z, 1, 2);
+        warehouse.initKey();
         
         world.markBlockForUpdate(x, y, z);
     }
@@ -159,6 +125,9 @@ public class BlockStall extends BlockTerraContainer
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
     {
+        if(player.isSneaking())
+            return false;
+        
         if (world.isRemote)
         {
             world.markBlockForUpdate(x, y, z);
@@ -167,16 +136,12 @@ public class BlockStall extends BlockTerraContainer
 
         TileEntity te = world.getTileEntity(x, y, z);
 
-        if(te == null || !(te instanceof TileEntityStall))
+        if(te == null || !(te instanceof TileEntityWarehouse))
             return false;
         
-        TileEntityStall stall = (TileEntityStall)te;
+        TileEntityWarehouse warehouse = (TileEntityWarehouse)te;
         
-        stall.calculateQuantitiesInWarehouse();
-        
-        int guiId = player.isSneaking() && stall.getIsWarehouseSpecified() ? GuiHandler.GuiBuyerStall: GuiHandler.GuiOwnerStall; 
-
-        player.openGui(MerchantsMod.instance, guiId, world, x, y, z);
+        player.openGui(MerchantsMod.instance, GuiHandler.GuiWarehouse, world, x, y, z);
 
         return true;
     }
@@ -191,7 +156,7 @@ public class BlockStall extends BlockTerraContainer
     @Override
     public TileEntity createNewTileEntity(World var1, int var2)
     {
-        return new TileEntityStall();
+        return new TileEntityWarehouse();
     }
 
     @Override
