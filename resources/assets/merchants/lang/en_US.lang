@@ -8,6 +8,7 @@ gui.Stall.Goods=Goods
 gui.Stall.Clear=Clear
 gui.Stall.Title=Stall
 gui.Stall.Warehouse=Warehouse
+gui.Stall.NoWarehouse=Not Found
 gui.Stall.HasPrices=Price List Specified
 gui.Stall.NotEnoughGoods=No Goods
 gui.Stall.CanBuy=Can Buy

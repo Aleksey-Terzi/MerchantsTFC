@@ -9,6 +9,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.aleksey.merchants.Containers.ContainerStall;
+import com.aleksey.merchants.Core.WarehouseBookInfo;
 import com.aleksey.merchants.Helpers.ItemHelper;
 import com.aleksey.merchants.TileEntities.TileEntityStall;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
@@ -150,7 +151,7 @@ public class GuiStall extends GuiContainerTFC
         drawTexturedModalRect(w, h, 0, v, xSize, ySize);
         
         String inventoryName = StatCollector.translateToLocal(_stall.getInventoryName());
-        String title = !_stall.getIsWarehouseSpecified() ? inventoryName: inventoryName + " (" + _stall.getOwnerUserName() + ")";
+        String title = !_stall.getIsOwnerSpecified() ? inventoryName: inventoryName + " (" + _stall.getOwnerUserName() + ")";
 
         drawCenteredString(title, w + _titleX, h + _titleY, WindowWidth, _colorDefaultText);
         drawCenteredString(StatCollector.translateToLocal("gui.Stall.Prices"), w + _pricesTitleX, h + _pricesTitleY, _columnTitleWidth, _colorDefaultText);
@@ -169,37 +170,46 @@ public class GuiStall extends GuiContainerTFC
         
         drawCenteredString(StatCollector.translateToLocal("gui.Stall.Warehouse"), w + _warehouseTitleX, h + _warehouseTitleY, _columnWarehouseWidth, _colorDefaultText);
         
-        if(!_stall.getIsWarehouseSpecified())
+        if(!_stall.getIsOwnerSpecified())
             return;
 
-        String coordXText = String.valueOf(_stall.getWarehouseX());
-        String coordYText = String.valueOf(_stall.getWarehouseY());
-        String coordZText = String.valueOf(_stall.getWarehouseZ());
+        WarehouseBookInfo info = _stall.getBookInfo();
         
-        int coordXTextWidth = this.fontRendererObj.getStringWidth("X: " + coordXText);
-        int coordYTextWidth = this.fontRendererObj.getStringWidth("Y: " + coordYText);
-        int coordZTextWidth = this.fontRendererObj.getStringWidth("Z: " + coordZText);
-        int coordTextWidth = coordXTextWidth;
-        
-        if(coordTextWidth < coordYTextWidth)
-            coordTextWidth = coordYTextWidth;
-        
-        if(coordTextWidth < coordZTextWidth)
-            coordTextWidth = coordZTextWidth;
-        
-        int x = w + _warehouseCoordsX + (_columnWarehouseWidth - coordTextWidth) / 2;
-        int y1 = h + _warehouseCoordsY;
-        int y2 = y1 + this.fontRendererObj.FONT_HEIGHT;
-        int y3 = y2 + this.fontRendererObj.FONT_HEIGHT;
-        
-        fontRendererObj.drawString("X: ", x, y1, _colorDefaultText);
-        drawRightAlignedString(coordXText, x, y1, coordTextWidth, _colorDefaultText);
-        fontRendererObj.drawString("Y: ", x, y2, _colorDefaultText);
-        drawRightAlignedString(coordYText, x, y2, coordTextWidth, _colorDefaultText);
-        fontRendererObj.drawString("Z: ", x, y3, _colorDefaultText);
-        drawRightAlignedString(coordZText, x, y3, coordTextWidth, _colorDefaultText);
-        
-        fontRendererObj.drawString("C: " + String.valueOf(_stall.getContainersInWarehouse()), x, y3 + this.fontRendererObj.FONT_HEIGHT, _colorDefaultText);
+        if(info != null)
+        {
+            String coordXText = String.valueOf(info.X);
+            String coordYText = String.valueOf(info.Y);
+            String coordZText = String.valueOf(info.Z);
+            
+            int coordXTextWidth = this.fontRendererObj.getStringWidth("X: " + coordXText);
+            int coordYTextWidth = this.fontRendererObj.getStringWidth("Y: " + coordYText);
+            int coordZTextWidth = this.fontRendererObj.getStringWidth("Z: " + coordZText);
+            int coordTextWidth = coordXTextWidth;
+            
+            if(coordTextWidth < coordYTextWidth)
+                coordTextWidth = coordYTextWidth;
+            
+            if(coordTextWidth < coordZTextWidth)
+                coordTextWidth = coordZTextWidth;
+            
+            int x = w + _warehouseCoordsX + (_columnWarehouseWidth - coordTextWidth) / 2;
+            int y1 = h + _warehouseCoordsY;
+            int y2 = y1 + this.fontRendererObj.FONT_HEIGHT;
+            int y3 = y2 + this.fontRendererObj.FONT_HEIGHT;
+            
+            fontRendererObj.drawString("X: ", x, y1, _colorDefaultText);
+            drawRightAlignedString(coordXText, x, y1, coordTextWidth, _colorDefaultText);
+            fontRendererObj.drawString("Y: ", x, y2, _colorDefaultText);
+            drawRightAlignedString(coordYText, x, y2, coordTextWidth, _colorDefaultText);
+            fontRendererObj.drawString("Z: ", x, y3, _colorDefaultText);
+            drawRightAlignedString(coordZText, x, y3, coordTextWidth, _colorDefaultText);
+            
+            fontRendererObj.drawString("C: " + String.valueOf(_stall.getContainersInWarehouse()), x, y3 + this.fontRendererObj.FONT_HEIGHT, _colorDefaultText);
+        }
+        else
+        {
+            drawCenteredString(StatCollector.translateToLocal("gui.Stall.NoWarehouse"), w + _warehouseCoordsX, h + _warehouseCoordsY, _columnWarehouseWidth, _colorFailedText);
+        }
     }
     
     private void drawQuantities(int w, int h)
@@ -241,7 +251,7 @@ public class GuiStall extends GuiContainerTFC
     
     private boolean getQuantities()
     {
-        if(!_stall.getIsWarehouseSpecified())
+        if(_stall.getBookInfo() == null)
         {
             _quantities = null;
             return false;

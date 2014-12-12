@@ -174,7 +174,7 @@ public class BlockStall extends BlockTerraContainer
         
         stall.calculateQuantitiesInWarehouse();
         
-        int guiId = player.isSneaking() && stall.getIsWarehouseSpecified() ? GuiHandler.GuiBuyerStall: GuiHandler.GuiOwnerStall; 
+        int guiId = player.isSneaking() && stall.getIsOwnerSpecified() ? GuiHandler.GuiBuyerStall: GuiHandler.GuiOwnerStall; 
 
         player.openGui(MerchantsMod.instance, guiId, world, x, y, z);
 

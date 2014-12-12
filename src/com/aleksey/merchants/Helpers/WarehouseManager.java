@@ -16,6 +16,8 @@ import net.minecraft.world.World;
 
 import com.aleksey.merchants.Containers.Slots.SlotIngotPile;
 import com.aleksey.merchants.Core.Point;
+import com.aleksey.merchants.Core.WarehouseBookInfo;
+import com.aleksey.merchants.TileEntities.TileEntityWarehouse;
 import com.bioxx.tfc.Containers.ContainerChestTFC;
 import com.bioxx.tfc.Containers.Slots.SlotChest;
 import com.bioxx.tfc.Containers.Slots.SlotLogPile;
@@ -49,7 +51,8 @@ public class WarehouseManager
         }
     }
     
-    private static final int _searchRadius = 5;
+    private static final int _searchContainerRadius = 5;
+    private static final int _searchWarehouseDistance = 10;
     
     private static final Class<?>[] _allowedInventories = {
         TileEntityChest.class,
@@ -281,18 +284,30 @@ public class WarehouseManager
         
         return requiredQuantity - quantity;
     }
+    
+    public boolean existWarehouse(int stallX, int stallY, int stallZ, WarehouseBookInfo info, World world)
+    {
+        double distance = Math.sqrt(Math.pow(info.X - stallX, 2) + Math.pow(info.Y - stallY, 2) + Math.pow(info.Z - stallZ, 2));
+        
+        if(distance > _searchWarehouseDistance)
+            return false;
+        
+        TileEntity tileEntity = world.getTileEntity(info.X, info.Y, info.Z);
+        
+        return tileEntity instanceof TileEntityWarehouse && ((TileEntityWarehouse)tileEntity).getKey() == info.Key;
+    }
 
-    public void searchContainers(int warehouseX, int warehouseY, int warehouseZ, World world)
+    public void searchContainers(WarehouseBookInfo info, World world)
     {
         _containers.clear();
         _quantities.clear();
         
-        int startX = warehouseX - _searchRadius;
-        int endX = warehouseX + _searchRadius;
-        int startY = warehouseY - _searchRadius;
-        int endY = warehouseY + _searchRadius;
-        int startZ = warehouseZ - _searchRadius;
-        int endZ = warehouseZ + _searchRadius;
+        int startX = info.X - _searchContainerRadius;
+        int endX = info.X + _searchContainerRadius;
+        int startY = info.Y - _searchContainerRadius;
+        int endY = info.Y + _searchContainerRadius;
+        int startZ = info.Z - _searchContainerRadius;
+        int endZ = info.Z + _searchContainerRadius;
         
         for(int x = startX; x <= endX; x++)
         {

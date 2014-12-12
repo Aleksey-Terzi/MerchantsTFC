@@ -1,6 +1,5 @@
 package com.aleksey.merchants.TileEntities;
 
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -8,9 +7,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 
-import com.aleksey.merchants.Blocks.Devices.BlockStall;
+import com.aleksey.merchants.Core.WarehouseBookInfo;
 import com.aleksey.merchants.Helpers.PrepareTradeResult;
 import com.aleksey.merchants.Helpers.WarehouseManager;
+import com.aleksey.merchants.Items.ItemWarehouseBook;
 import com.bioxx.tfc.TileEntities.NetworkTileEntity;
 
 import cpw.mods.fml.relauncher.Side;
@@ -30,6 +30,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
     private ItemStack[] _storage;
     private WarehouseManager _warehouse;
     private String _ownerUserName;
+    private WarehouseBookInfo _bookInfo;
 
     public TileEntityStall()
     {
@@ -37,29 +38,15 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         _warehouse = new WarehouseManager();
     }
 
-    public boolean getIsWarehouseSpecified()
+    public boolean getIsOwnerSpecified()
     {
         return _ownerUserName != null;
     }
 
-    public int getWarehouseX()
-    {
-        return this.xCoord;
-    }
-
-    public int getWarehouseY()
-    {
-        return this.yCoord;
-    }
-
-    public int getWarehouseZ()
-    {
-        return this.zCoord;
-    }
-
-    public void setWarehouse(String ownerUserName)
+    public void setOwnerUserName(String ownerUserName)
     {
         _ownerUserName = ownerUserName;
+        _bookInfo = null;
     }
 
     public String getOwnerUserName()
@@ -67,11 +54,31 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         return _ownerUserName;
     }
 
+    public WarehouseBookInfo getBookInfo()
+    {
+        return _bookInfo;
+    }
+
     public void calculateQuantitiesInWarehouse()
     {
-        _warehouse.searchContainers(getWarehouseX(), getWarehouseY(), getWarehouseZ(), this.worldObj);
+        if(_ownerUserName == null)
+            return;
+        
+        ItemStack itemStack = _storage[ItemCount - 1];
+        
+        if(itemStack != null && itemStack.getItem() instanceof ItemWarehouseBook)
+        {
+            _bookInfo = WarehouseBookInfo.readFromNBT(itemStack.getTagCompound());
+            
+            if(_warehouse.existWarehouse(this.xCoord, this.yCoord, this.zCoord, _bookInfo, this.worldObj))
+                _warehouse.searchContainers(_bookInfo, this.worldObj);
+            else
+                _bookInfo = null;
+        }
+        else
+            _bookInfo = null;
 
-        this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
 
     public int getQuantityInWarehouse(ItemStack itemStack)
@@ -86,7 +93,9 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
 
     public PrepareTradeResult prepareTrade(ItemStack goodStack, ItemStack payStack)
     {
-        return _warehouse.prepareTrade(goodStack, payStack, this.worldObj);
+        return _bookInfo != null && _warehouse.existWarehouse(this.xCoord, this.yCoord, this.zCoord, _bookInfo, this.worldObj)
+            ? _warehouse.prepareTrade(goodStack, payStack, this.worldObj)
+            : PrepareTradeResult.NoGoods;
     }
 
     public void confirmTrade()
@@ -217,6 +226,14 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         writeStallToNBT(nbt);
 
         _warehouse.writeToNBT(nbt);
+
+        if(_bookInfo != null)
+        {
+            NBTTagCompound bookTag = new NBTTagCompound();
+            _bookInfo.writeToNBT(bookTag);
+            
+            nbt.setTag("Book", bookTag);
+        }
     }
 
     public void writeStallToNBT(NBTTagCompound nbt)
@@ -250,6 +267,8 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         readStallFromNBT(nbt);
 
         _warehouse.readFromNBT(nbt);
+        
+        _bookInfo = nbt.hasKey("Book") ? WarehouseBookInfo.readFromNBT(nbt.getCompoundTag("Book")): null;
     }
 
     public void readStallFromNBT(NBTTagCompound nbt)
@@ -274,6 +293,8 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         _ownerUserName = nbt.hasKey("OwnerUserName") ? nbt.getString("OwnerUserName"): null;
 
         _warehouse.readFromNBT(nbt);
+        
+        _bookInfo = nbt.hasKey("Book") ? WarehouseBookInfo.readFromNBT(nbt.getCompoundTag("Book")): null;
 
         this.worldObj.func_147479_m(xCoord, yCoord, zCoord);
     }
@@ -285,6 +306,14 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
             nbt.setString("OwnerUserName", _ownerUserName);
 
         _warehouse.writeToNBT(nbt);
+        
+        if(_bookInfo != null)
+        {
+            NBTTagCompound bookTag = new NBTTagCompound();
+            _bookInfo.writeToNBT(bookTag);
+            
+            nbt.setTag("Book", bookTag);
+        }
     }
 
     @Override

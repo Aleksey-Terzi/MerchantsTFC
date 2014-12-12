@@ -240,7 +240,7 @@ public class ContainerStall extends ContainerTFC
             
             if(isBookSlot)
             {
-                _stall.setWarehouse(player.getCommandSenderName());
+                _stall.setOwnerUserName(player.getCommandSenderName());
                 _stall.calculateQuantitiesInWarehouse();
             }
         }
@@ -288,7 +288,7 @@ public class ContainerStall extends ContainerTFC
                     inventoryplayer.setItemStack(itemToGet);
                 
                 if(isBookSlot)
-                    _stall.setWarehouse(null);
+                    _stall.setOwnerUserName(null);
                 
                 if (slotItemStack.stackSize == 0)
                     slot.putStack((ItemStack)null);

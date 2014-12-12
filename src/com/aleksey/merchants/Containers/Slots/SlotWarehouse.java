@@ -3,8 +3,8 @@ package com.aleksey.merchants.Containers.Slots;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBook;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemWritableBook;
 
 import com.aleksey.merchants.Items.ItemWarehouseBook;
 
@@ -19,6 +19,6 @@ public class SlotWarehouse extends Slot
     {
         Item item = itemstack.getItem();
         
-        return item instanceof ItemBook || item instanceof ItemWarehouseBook; 
+        return item instanceof ItemWritableBook || item instanceof ItemWarehouseBook; 
     }
 }
