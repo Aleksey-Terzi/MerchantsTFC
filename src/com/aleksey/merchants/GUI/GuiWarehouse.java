@@ -25,6 +25,9 @@ public class GuiWarehouse extends GuiContainerTFC
 
     private static final int _titleX = 0;
     private static final int _titleY = 4;
+    private static final int _warehouseCoordsX = 97;
+    private static final int _warehouseCoordsY = 27;
+    private static final int _columnWarehouseWidth = 76;
     private static final int _signButtonX = 63;
     private static final int _signButtonY = 65;
     
@@ -83,10 +86,48 @@ public class GuiWarehouse extends GuiContainerTFC
         String inventoryName = StatCollector.translateToLocal(_warehouse.getInventoryName());
 
         drawCenteredString(inventoryName, w + _titleX, h + _titleY, WindowWidth, _colorDefaultText);
+        drawCoords(w, h);
         
         _signButton.enabled = _warehouse.getStackInSlot(0) != null;
 
         PlayerInventory.drawInventory(this, width, height, ySize - PlayerInventory.invYSize);
+    }
+    
+    private void drawCoords(int w, int h)
+    {
+        String coordXText = String.valueOf(_warehouse.xCoord);
+        String coordYText = String.valueOf(_warehouse.yCoord);
+        String coordZText = String.valueOf(_warehouse.zCoord);
+        
+        int coordXTextWidth = this.fontRendererObj.getStringWidth("X: " + coordXText);
+        int coordYTextWidth = this.fontRendererObj.getStringWidth("Y: " + coordYText);
+        int coordZTextWidth = this.fontRendererObj.getStringWidth("Z: " + coordZText);
+        int coordTextWidth = coordXTextWidth;
+        
+        if(coordTextWidth < coordYTextWidth)
+            coordTextWidth = coordYTextWidth;
+        
+        if(coordTextWidth < coordZTextWidth)
+            coordTextWidth = coordZTextWidth;
+        
+        int x = w + _warehouseCoordsX + (_columnWarehouseWidth - coordTextWidth) / 2;
+        int y1 = h + _warehouseCoordsY;
+        int y2 = y1 + this.fontRendererObj.FONT_HEIGHT;
+        int y3 = y2 + this.fontRendererObj.FONT_HEIGHT;
+        
+        fontRendererObj.drawString("X: ", x, y1, _colorDefaultText);
+        drawRightAlignedString(coordXText, x, y1, coordTextWidth, _colorDefaultText);
+        fontRendererObj.drawString("Y: ", x, y2, _colorDefaultText);
+        drawRightAlignedString(coordYText, x, y2, coordTextWidth, _colorDefaultText);
+        fontRendererObj.drawString("Z: ", x, y3, _colorDefaultText);
+        drawRightAlignedString(coordZText, x, y3, coordTextWidth, _colorDefaultText);
+    }
+    
+    private void drawRightAlignedString(String s, int x, int y, int columnWidth, int color)
+    {
+        int offset = columnWidth - this.fontRendererObj.getStringWidth(s);
+        
+        fontRendererObj.drawString(s, x + offset, y, color);
     }
     
     private void drawCenteredString(String s, int x, int y, int columnWidth, int color)

@@ -204,7 +204,7 @@ public class GuiStall extends GuiContainerTFC
             fontRendererObj.drawString("Z: ", x, y3, _colorDefaultText);
             drawRightAlignedString(coordZText, x, y3, coordTextWidth, _colorDefaultText);
             
-            fontRendererObj.drawString("C: " + String.valueOf(_stall.getContainersInWarehouse()), x, y3 + this.fontRendererObj.FONT_HEIGHT, _colorDefaultText);
+            //fontRendererObj.drawString("C: " + String.valueOf(_stall.getContainersInWarehouse()), x, y3 + this.fontRendererObj.FONT_HEIGHT, _colorDefaultText);
         }
         else
         {

@@ -22,7 +22,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
     public static final int ItemCount = 2 * PriceCount + 1;
 
     public static final int[] PricesSlotIndexes = new int[] { 0, 2, 4, 6, 8 };
-    public static final int[] GoodsSlotIndexes = new int[] { 1, 3, 5, 7 };
+    public static final int[] GoodsSlotIndexes = new int[] { 1, 3, 5, 7, 9 };
 
     private static final byte _actionId_ClearPrices = 0;
     private static final byte _actionId_Buy = 1;
