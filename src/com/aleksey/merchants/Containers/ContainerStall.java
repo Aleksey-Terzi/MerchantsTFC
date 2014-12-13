@@ -1,14 +1,17 @@
 package com.aleksey.merchants.Containers;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 import com.aleksey.merchants.Containers.Slots.SlotStall;
@@ -23,12 +26,31 @@ import com.bioxx.tfc.Core.Player.PlayerInventory;
 import com.bioxx.tfc.Food.ItemFoodTFC;
 import com.bioxx.tfc.api.Interfaces.IFood;
 
+//slotClick is based on https://github.com/Mr-J/AdvancedBackpackMod/blob/master/unrelated/slotClick%2BComments%2BRename%2BHelpers.java.txt
+
 public class ContainerStall extends ContainerTFC
 {   
     private TileEntityStall _stall;
     private boolean _isOwnerMode;
     private ArrayList<Integer> _paySlotIndexes;
     private World _world;
+    
+    /*
+     * slotClick fields
+     * 
+     * these 3 variables are private in container, so we can not access them here
+     * we mirror and rename these locally here
+     * private int field_94536_g = 0;
+     * seems to hold the state of the dragged multislot placement of an itemstack
+     * renamed to distributeState
+     * 0 = not started
+     * 1 = currently placing
+     * 2 = drag operation done, place into the slots
+     * private final Set field_94537_h = new HashSet();  
+    */
+    private int _pressedKeyInRange = -1;
+    private int _distributeState = 0;
+    private final Set _distributeSlotSet = new HashSet();
 
     public ContainerStall(InventoryPlayer inventoryplayer, TileEntityStall stall, boolean isOwnerMode, World world, int x, int y, int z)
     {
@@ -109,35 +131,158 @@ public class ContainerStall extends ContainerTFC
         return null;
     }
     
+    /** 
+     * the slotClick method (from net.minecraft.inventory.Container.java)
+     * handles every click performed on a container, this happens normally 
+     * in a gui
+     * 
+     * @param targetSlotID the ID of the clicked slot, the slotClick method is performed on this slot 
+     * @param mouseButtonPressed the pressed mouse button when slotClick was invoked, notice that this has not to be the "real" mouse
+     * @param flag a range of flag indicating different things 
+     * @param player the player performing the click
+     * 
+     * values for mouseButtonPressed:
+     * 0 = left button clicked
+     * 1 = right button clicked
+     * 2 = middle (third) button clicked / also left button pressed & hold (only with item@cursor)
+     * 6 = right button pressed & hold
+     * 
+     * values for flag:
+     * 0 = standard single click
+     * 1 = single click + shift modifier
+     * 2 = hotbar key is pressed (keys 0-9)
+     * 3 = click with the middle button
+     * 4 = click outside of the current gui window
+     * 5 = button pressed & hold with the cursor holding an itemstack
+     * 6 = double left click
+     **/
     @Override
-    public ItemStack slotClick(int slotNumber, int mouseButton, int key, EntityPlayer player)
+    public ItemStack slotClick(int targetSlotID, int mouseButtonPressed, int flag, EntityPlayer player)
     {
-        //mouseButton == 0 - Left button 
-        //key == 1 - Shift down
-
-        ItemStack itemstack = null;
+        ItemStack returnStack = null;
         InventoryPlayer inventoryplayer = player.inventory;
-        ItemStack itemstack1;
+        //kind of a multipurpose variable
+        int sizeOrID;
+        ItemStack movedItemStack;        
 
-        if (key != 5)
+        /*
+         * PART 1: DRAGGED DISTRIBUTION
+         * This is a special case where the itemStack the mouseCursor currently holds
+         * is distributed over several fields of a container, which is only 
+         * done if the a mouse button is pressed and hold (flag == 5)
+         */
+        if (flag == 5)   
         {
-            Slot slot2;
-            int k1;
-            ItemStack itemstack3;
-
-            if ((key == 0 || key == 1) && (mouseButton == 0 || mouseButton == 1))
+            int currentDistributeState = _distributeState;
+            _distributeState = checkForPressedButton(mouseButtonPressed);
+            
+            /*
+             * if distributeState is neither 1 nor 2 AND
+             * currentDistributeState != distributestate 
+             * then reset the distributestate and the distributeSlotSet
+             */
+            if ((currentDistributeState != 1 || _distributeState != 2) && currentDistributeState != _distributeState)
             {
-                if (slotNumber == -999)
+                this.resetDistributionVariables();
+            }
+            /*
+             * else if the player current hold nothing 
+             * on his mouse cursor (no stack picked up)
+             */
+            else if (inventoryplayer.getItemStack() == null)
+            {
+                this.resetDistributionVariables();
+            }
+            else if (_distributeState == 0)
+            {
+                _pressedKeyInRange = checkForPressedButton2(mouseButtonPressed);
+                
+                //true for 0 or 1
+                if (checkValue(_pressedKeyInRange))             
                 {
-                    if (inventoryplayer.getItemStack() != null && slotNumber == -999)
+                    _distributeState = 1;
+                    _distributeSlotSet.clear();
+                }
+                else
+                {
+                    this.resetDistributionVariables();
+                }
+            }
+            else if (_distributeState == 1)
+            {
+                //get the slot for which the click is performed
+                Slot currentTargetSlot = (Slot)this.inventorySlots.get(targetSlotID);
+                
+                if (currentTargetSlot != null && 
+                stackFitsInSlot(currentTargetSlot, inventoryplayer.getItemStack(), true) &&             
+                currentTargetSlot.isItemValid(inventoryplayer.getItemStack()) &&
+                inventoryplayer.getItemStack().stackSize > _distributeSlotSet.size())
+                
+                {
+                    /*
+                     * add the slot to the set
+                     * (to which the itemstack will be distributed)
+                     */
+                    _distributeSlotSet.add(currentTargetSlot);
+                }
+            }
+            else if (_distributeState == 2)
+            {
+                if (!_distributeSlotSet.isEmpty())
+                {
+                    putItemToDistributeSlotSet(mouseButtonPressed, player);
+                }
+                
+                this.resetDistributionVariables();
+            }
+            else
+            {
+                this.resetDistributionVariables();
+            }
+        }
+        else if (_distributeState != 0)
+        {
+            this.resetDistributionVariables();
+        }
+        /*
+         * PART 2: NORMAL SLOTCLICK
+         * this part handles all other slotClicks which do
+         * not distribute an itemstack over several slots
+         */
+        else
+        {
+            /*
+             *multipurpose variable, mostly used for holding
+             *the number of items to be transfered, if used 
+             *otherwise it will be commented seperately 
+             */
+            Slot targetSlotCopy;
+            
+            int transferItemCount;
+            ItemStack targetSlotItemStack;
+
+            /*
+             *only for a standard or shift click AND 
+             *a left or right button click
+             */
+            if ((flag == 0 || flag == 1) && (mouseButtonPressed == 0 || mouseButtonPressed == 1))
+            {
+                //if the targetSlotID is not valid
+                if (targetSlotID == -999)
+                {
+                    if (inventoryplayer.getItemStack() != null && targetSlotID == -999)
                     {
-                        if (mouseButton == 0)
+                        /*
+                         * on leftclick drop the complete itemstack from the inventory
+                         * on rightclick drop a single item from the itemstack
+                         */
+                        if (mouseButtonPressed == 0)
                         {
                             player.dropPlayerItemWithRandomChoice(inventoryplayer.getItemStack(), false);
                             inventoryplayer.setItemStack((ItemStack)null);
                         }
 
-                        if (mouseButton == 1)
+                        if (mouseButtonPressed == 1)
                         {
                             player.dropPlayerItemWithRandomChoice(inventoryplayer.getItemStack().splitStack(1), false);
 
@@ -148,58 +293,327 @@ public class ContainerStall extends ContainerTFC
                         }
                     }
                 }
-                else if (key == 1)
+                //if a click with shift modifier is performed (clicking while holding down shift)
+                else if (flag == 1)
                 {
-                    if (slotNumber < 0)
+                    //for an invalid slot return null
+                    if (targetSlotID < 0)
                     {
                         return null;
                     }
-
-                    slot2 = (Slot)this.inventorySlots.get(slotNumber);
-
-                    if (slot2 != null && slot2.canTakeStack(player))
+                    targetSlotCopy = (Slot)this.inventorySlots.get(targetSlotID);
+                    
+                    //if targetSlotCopy is not null and the stack inside the slot can be moved
+                    if (targetSlotCopy != null && targetSlotCopy.canTakeStack(player))
                     {
-                        itemstack1 = this.transferStackInSlot(player, slotNumber);
-
-                        if (itemstack1 != null)
+                        //transfer the picked up stack to targetSlotID in the targetinventory
+                        movedItemStack = this.transferStackInSlot(player, targetSlotID);
+                        //if the movedItemStack was not transferred completely
+                        if (movedItemStack != null)
                         {
-                            Item item = itemstack1.getItem();
-                            itemstack = itemstack1.copy();
+                            //here used to store an ID
+                            Item movedItem = movedItemStack.getItem();
+                            //set the return value to the rest
+                            returnStack = movedItemStack.copy();
 
-                            if (slot2 != null && slot2.getStack() != null && slot2.getStack().getItem() == item)
+                            if (targetSlotCopy != null && targetSlotCopy.getStack() != null && targetSlotCopy.getStack().getItem() == movedItem)
                             {
-                                this.retrySlotClick(slotNumber, mouseButton, true, player);
+                                //retry with the shift-click 
+                                this.retrySlotClick(targetSlotID, mouseButtonPressed, true, player);
                             }
                         }
                     }
                 }
+                //if a click with NO shift modifier is performed
                 else
                 {
-                    if (slotNumber < 0)
-                        return null;
-
-                    slot2 = (Slot)this.inventorySlots.get(slotNumber);
-
-                    if (slot2 != null)
+                    if (targetSlotID < 0)
                     {
-                        itemstack1 = slot2.getStack();
-                        ItemStack itemstack4 = inventoryplayer.getItemStack();
+                        return null;
+                    }
+                    targetSlotCopy = (Slot)this.inventorySlots.get(targetSlotID);
+                    /*
+                     * if the target slot is not empty
+                     * save its itemstack
+                     * save the itemstack to be transferred in cursorItemStack
+                     */
+                    if (targetSlotCopy != null)
+                    {
+                        /*
+                         * movedItemStack is here used to store the target Slot stack
+                         * instead of the currently moved itemstack
+                         */
+                        movedItemStack = targetSlotCopy.getStack();
+                        ItemStack cursorItemStack = inventoryplayer.getItemStack();
+                        /*
+                         * if the targetSlot contains an itemstack,
+                         * exchange it with the currently picked up stack
+                         */
+                        if (movedItemStack != null)
+                        {
+                            returnStack = movedItemStack.copy();
+                        }
 
-                        if (itemstack1 != null)
-                            itemstack = itemstack1.copy();
+                        //if the target slot is empty
+                        if (movedItemStack == null)
+                        {
+                            this.putItemToEmptySlot(targetSlotCopy, mouseButtonPressed, player);
+                        }
+                        /*
+                         * if the target slot is not empty AND
+                         * if the stack in the target slot can be moved (always true in Container.java)
+                         */
+                        else if (targetSlotCopy.canTakeStack(player))
+                        {
+                            this.putItemToNonEmptySlot(targetSlotCopy, mouseButtonPressed, player);
+                        }
 
-                        if (itemstack1 == null)
-                            putItemToEmptySlot(slot2, mouseButton, player);
-                        else if (slot2.canTakeStack(player))
-                            putItemToNonEmptySlot(slot2, mouseButton, player);
-
-                        slot2.onSlotChanged();
+                        //update the target slot
+                        targetSlotCopy.onSlotChanged();
                     }
                 }
             }
+            /*
+             * if a hotbar key is pressed (flag == 2)
+             */
+            else if (flag == 2 && mouseButtonPressed >= 0 && mouseButtonPressed < 9)
+            {
+
+            }
+            /*
+             * if the pressed mouse button is the middle button and
+             * the player is in creative mode and
+             * has currently no stack in his hand and
+             * the target slot is greater/equal to zero
+             */
+            else if (flag == 3 && player.capabilities.isCreativeMode && inventoryplayer.getItemStack() == null && targetSlotID >= 0)
+            {
+
+            }
+            /*
+             * if the player clicks outside of the gui and
+             * he has an itemstack in his hands and
+             * and the targetslot is greater/equal to zero
+             */
+            else if (flag == 4 && inventoryplayer.getItemStack() == null && targetSlotID >= 0)
+            {
+                targetSlotCopy = (Slot)this.inventorySlots.get(targetSlotID);
+                
+                /*
+                 * if there is a stack in the targetslot
+                 * moveItemStack size is 1 if leftclick or the stacksize of targetSlotCopy if rightclicked
+                 * update targetSlotCopy
+                 * drop movedItemStack at players position
+                 */
+                if (targetSlotCopy != null && targetSlotCopy.getHasStack())
+                {
+                    movedItemStack = targetSlotCopy.decrStackSize(mouseButtonPressed == 0 ? 1 : targetSlotCopy.getStack().stackSize);
+                    targetSlotCopy.onPickupFromSlot(player, movedItemStack);
+                    player.dropPlayerItemWithRandomChoice(movedItemStack, false);
+                }
+            }
+            /*
+             * if the player performs a double leftclick and
+             * the targetslot is greater/equal to zero
+             */
+            else if (flag == 6 && targetSlotID >= 0)
+            {
+
+            }
+        }
+        //return any remains of the operation
+        return returnStack;
+    }
+    
+    /*
+     * need to overwrite the container.java method to call
+     * the modified slotClick instead of the container method
+     */
+    @Override
+    protected void retrySlotClick(int targetSlotID, int mouseButtonPressed, boolean flag, EntityPlayer entity)
+    {
+        //a retry of slotClick with flag 1 (shift click)
+        this.slotClick(targetSlotID, mouseButtonPressed, 1, entity);
+    }
+    
+    /**
+     * This is a renamed version of the method
+     * func_94532_c in net.minecraft.inventory.Container.java
+     * this is not needed but i dont like non-sense method names
+     * 
+     * @param mouseButtonPressed can be {0,1,2,6} from what i observed
+     * @return 2 if mouseButtonPressed is 6, 0 else
+     * 
+     * if there are other values possible for mouseButtonPressed
+     * the method returns the following:
+     * 0  -> 0
+     * 1  -> 1
+     * 2  -> 2
+     * 3  -> 3
+     * for values over 3 the assignments restarts from the top 
+     * (so 4 is 0, 5 is 1...)
+     */
+    public static int checkForPressedButton(int mouseButtonPressed)
+    {
+        return mouseButtonPressed & 3;
+    }
+    
+    /**
+     * This is a renamed version of the method 
+     * func_94533_d in net.minecaft.inventory.Container.java
+     * this is not needed but i dont like non-sense method names 
+     */
+    protected void resetDistributionVariables()
+    {
+        _distributeState = 0;
+        _distributeSlotSet.clear();
+    }
+    
+   
+    /**
+     * This is a renamed version of the method
+     * func_94529_b in net.minecraft.inventory.Container.java
+     * this is not needed but i dont like non-sense method names
+     * 
+     * @param mouseButtonPressed can be {0,1,2,6} from what i observed
+     * @return 1 if mouseButtonPressed is 6, 0 else
+     * 
+     * if there are other values possible for mouseButtonPressed
+     * the method returns the following:
+     * 0-3  -> 0
+     * 4-7  -> 1
+     * 8-11 -> 2
+     * 12+  -> 3
+     */
+    public static int checkForPressedButton2(int mouseButtonPressed)
+    {
+        return mouseButtonPressed >> 2 & 3;
+    }
+    
+    /**
+     * This is a renamed version of the method 
+     * func_94528_d in net.minecraft.inventory.Container.java
+     * this is not needed but i dont like non-sense method names
+     * 
+     * @param value
+     * @return
+     */
+    public static boolean checkValue(int value)
+    {
+        return value == 0 || value == 1;
+    }
+    
+    /**
+     * This is a renamed version of the method
+     * func_94527_a in net.minecraft.inventory.Container.java
+     * this is not needed but i dont like non-sense method names
+     * 
+     * The method return a bool if a given itemstack fits into
+     * a given slot, the bool input argument rules if the size of
+     * the stack matters or not
+     * 
+     * @param slot is the target slot
+     * @param itemStack is the itemstack which should fit into slot
+     * @param sizeMatters rules if the size of itemstack matters
+     * @return true if the stack fits
+     */
+    public static boolean stackFitsInSlot(Slot slot, ItemStack itemStack, boolean sizeMatters)
+    {
+        boolean flag1 = slot == null || !slot.getHasStack();
+
+        if (slot != null && slot.getHasStack() && itemStack != null && itemStack.isItemEqual(slot.getStack()) && ItemStack.areItemStackTagsEqual(slot.getStack(), itemStack))
+        {
+            int i = sizeMatters ? 0 : itemStack.stackSize;
+            flag1 |= slot.getStack().stackSize + i <= itemStack.getMaxStackSize();
         }
 
-        return itemstack;
+        return flag1;
+    }
+    
+    /**
+     * This is a renamed version of the method 
+     * func_94525_a in net.minecraft.inventory.Container.java
+     * this is not needed but i dont like non-sense method names
+     * 
+     * @param slotSet is the set of slots for the current distribution
+     * @param stackSizeSelector is the number which is added to the current processed stack 
+     * @param stackToResize is stack that will be placed in the processed slot
+     * @param currentSlotStackSize is the size of the itemstack in the current slot
+     */
+    public static void setSlotStack(Set slotSet, int stackSizeSelector, ItemStack stackToResize, int currentSlotStackSize)
+    {
+        switch (stackSizeSelector)
+        {
+            case 0:
+                stackToResize.stackSize = MathHelper.floor_float((float)stackToResize.stackSize / (float)slotSet.size());
+                break;
+            case 1:
+                stackToResize.stackSize = 1;
+        }
+
+        stackToResize.stackSize += currentSlotStackSize;
+    }
+    
+    private void putItemToDistributeSlotSet(int mouseButton, EntityPlayer player)
+    {
+        if(_distributeSlotSet.size() == 1)
+        {
+            Slot slot = (Slot)_distributeSlotSet.iterator().next();
+            
+            if(!isPlayerSlot(slot.slotNumber))
+            {
+                if(slot.getStack() == null)
+                    putItemToEmptySlot(slot, _pressedKeyInRange, player);
+                else
+                    putItemToNonEmptySlot(slot, _pressedKeyInRange, player);
+                
+                return;
+            }
+        }
+        
+        InventoryPlayer inventoryplayer = player.inventory;
+        ItemStack playerItemStack = inventoryplayer.getItemStack().copy();        
+        int size = inventoryplayer.getItemStack().stackSize;
+        
+        Iterator iterator = _distributeSlotSet.iterator();
+        
+        while (iterator.hasNext())
+        {
+            Slot currentSlotOfSet = (Slot)iterator.next();
+            
+            if(!isPlayerSlot(currentSlotOfSet.slotNumber))
+                continue;
+            
+            if (currentSlotOfSet != null
+                    && stackFitsInSlot(currentSlotOfSet, inventoryplayer.getItemStack(), true)
+                    && currentSlotOfSet.isItemValid(inventoryplayer.getItemStack())
+                    && inventoryplayer.getItemStack().stackSize >= _distributeSlotSet.size()
+                    )
+            {
+                ItemStack targetSlotNewStack = playerItemStack.copy();
+                int currentSlotStackSize = currentSlotOfSet.getHasStack() ? currentSlotOfSet.getStack().stackSize : 0;
+                
+                setSlotStack(_distributeSlotSet, _pressedKeyInRange, targetSlotNewStack, currentSlotStackSize);
+                
+                if (targetSlotNewStack.stackSize > targetSlotNewStack.getMaxStackSize())
+                    targetSlotNewStack.stackSize = targetSlotNewStack.getMaxStackSize();
+
+                if (targetSlotNewStack.stackSize > currentSlotOfSet.getSlotStackLimit())
+                    targetSlotNewStack.stackSize = currentSlotOfSet.getSlotStackLimit();
+
+                size -= targetSlotNewStack.stackSize - currentSlotStackSize;
+                
+                currentSlotOfSet.putStack(targetSlotNewStack);
+            }
+        }
+
+        //set the stacksize of the picked up stack to the rest number
+        playerItemStack.stackSize = size;
+
+        if (playerItemStack.stackSize <= 0)
+            playerItemStack = null;
+
+        inventoryplayer.setItemStack(playerItemStack);
     }
     
     private void putItemToEmptySlot(Slot slot, int mouseButton, EntityPlayer player)
