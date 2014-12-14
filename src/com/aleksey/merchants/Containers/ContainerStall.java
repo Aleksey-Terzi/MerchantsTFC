@@ -7,6 +7,7 @@ import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -19,6 +20,7 @@ import com.aleksey.merchants.Containers.Slots.SlotStallBook;
 import com.aleksey.merchants.GUI.GuiStall;
 import com.aleksey.merchants.Helpers.ItemHelper;
 import com.aleksey.merchants.Helpers.PrepareTradeResult;
+import com.aleksey.merchants.Items.ItemWarehouseBook;
 import com.aleksey.merchants.TileEntities.TileEntityStall;
 import com.bioxx.tfc.Containers.ContainerTFC;
 import com.bioxx.tfc.Containers.Slots.SlotForShowOnly;
@@ -101,33 +103,103 @@ public class ContainerStall extends ContainerTFC
     }
 
     @Override
-    public ItemStack transferStackInSlotTFC(EntityPlayer entityplayer, int i)
+    public ItemStack transferStackInSlotTFC(EntityPlayer entityplayer, int slotNumber)
     {
-        /*
-        Slot slot = (Slot)inventorySlots.get(i);
+        if(_isOwnerMode)
+            return transferStackInSlotTFC_OwnerMode(entityplayer, slotNumber);
+        else
+            return transferStackInSlotTFC_BuyerMode(entityplayer, slotNumber);
+    }
+    
+    private ItemStack transferStackInSlotTFC_OwnerMode(EntityPlayer entityplayer, int slotNumber)
+    {
+        Slot slot = (Slot)inventorySlots.get(slotNumber);
         
-        if(slot != null && slot.getHasStack())
+        if(slot == null || !slot.getHasStack())
+            return null;
+
+        ItemStack itemstack1 = slot.getStack();
+
+        if(slotNumber < TileEntityStall.ItemCount)
         {
-            ItemStack itemstack1 = slot.getStack();
-
-            if(i < TileEntityStall.ItemCount)
+            if(isBookSlot(slotNumber))
             {
-                if(!this.mergeItemStack(itemstack1, TileEntityStall.ItemCount, this.inventorySlots.size(), true))
+                if(this.mergeItemStack(itemstack1, TileEntityStall.ItemCount, this.inventorySlots.size(), true))
+                {
+                    _stall.setOwnerUserName(null);
+                    
+                    _world.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
+                }
+                else
                     return null;
             }
             else
-            {
-                if(!this.mergeItemStack(itemstack1, 0, TileEntityStall.ItemCount, false))
-                    return null;
-            }
-
-            if(itemstack1.stackSize == 0)
-                slot.putStack(null);
-            else
-                slot.onSlotChanged();
+                itemstack1.stackSize = 0;
         }
-        */
+        else
+        {
+            int bookSlotIndex = getBookSlotIndex();
+            Slot bookSlot = (Slot)this.inventorySlots.get(bookSlotIndex);
+            
+            if(!(itemstack1.getItem() instanceof ItemWarehouseBook) || bookSlot.getStack() != null)
+                return null;
+            
+            bookSlot.putStack(itemstack1.splitStack(1));
+            
+            if(!entityplayer.worldObj.isRemote)
+            {
+                _stall.setOwnerUserName(entityplayer.getCommandSenderName());
+                _stall.calculateQuantitiesInWarehouse();
+                
+                _world.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
+            }
+            
+            entityplayer.onUpdate();
+        }
+
+        if(itemstack1.stackSize == 0)
+            slot.putStack(null);
+        else
+            slot.onSlotChanged();
         
+        return null;
+    }
+    
+    private ItemStack transferStackInSlotTFC_BuyerMode(EntityPlayer entityplayer, int slotNumber)
+    {
+        if(entityplayer.worldObj.isRemote || slotNumber >= TileEntityStall.ItemCount)
+            return null;
+        
+        Slot slot = (Slot)inventorySlots.get(slotNumber);
+        
+        if(slot == null || !slot.getHasStack())
+            return null;
+
+        ItemStack goodItemStack = slot.getStack();
+        
+        int priceSlotIndex = getPriceSlotIndex(slot.getSlotIndex());
+        ItemStack payItemStack = _stall.getStackInSlot(priceSlotIndex);
+        
+        InventoryPlayer inventoryPlayer = entityplayer.inventory;
+        
+        if(!preparePayAndTrade(goodItemStack, payItemStack, entityplayer))
+            return null;
+        
+        ArrayList<Integer> slotIndexes = new ArrayList<Integer>();
+        
+        if(!prepareTransferGoods(goodItemStack, inventoryPlayer, slotIndexes))
+            return null;
+
+        confirmPay(payItemStack, inventoryPlayer);
+         
+         _stall.confirmTrade();
+         
+         confirmTransferGoods(goodItemStack, inventoryPlayer, slotIndexes);
+
+         entityplayer.worldObj.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
+         
+         entityplayer.onUpdate();
+
         return null;
     }
     
@@ -975,6 +1047,98 @@ public class ContainerStall extends ContainerTFC
         _paySlotIndexes = null;
     }
     
+    private void confirmTransferGoods(ItemStack itemStack, InventoryPlayer inventoryPlayer, ArrayList<Integer> slotIndexes)
+    {
+        IInventory inventory = (IInventory)inventoryPlayer;
+        int requiredQuantity = ItemHelper.getItemStackQuantity(itemStack);
+        int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack, inventory);
+        
+        for(int i = 0; i < slotIndexes.size(); i++)
+        {
+            int slotIndex = slotIndexes.get(i);
+            ItemStack invItemStack = inventory.getStackInSlot(slotIndex);
+            
+            if(invItemStack == null)
+            {
+                invItemStack = itemStack.copy();
+                
+                ItemHelper.setStackQuantity(invItemStack, requiredQuantity);
+                
+                inventory.setInventorySlotContents(slotIndex, invItemStack);
+                
+                requiredQuantity = 0;
+            }
+            else
+            {
+                int invQuantity = ItemHelper.getItemStackQuantity(invItemStack);
+                int quantity = Math.min(requiredQuantity, maxStackQuantity - invQuantity);
+                
+                ItemHelper.increaseStackQuantity(invItemStack, quantity);
+                
+                requiredQuantity -= quantity;
+            }
+        }
+    }
+    
+    private boolean prepareTransferGoods(ItemStack itemStack, InventoryPlayer inventoryPlayer, ArrayList<Integer> slotIndexes)
+    {
+        int requiredQuantity = ItemHelper.getItemStackQuantity(itemStack);
+        
+        int quantity = searchTransferGoods_NonEmptySlots(itemStack, requiredQuantity, inventoryPlayer, slotIndexes);
+        quantity = searchTransferGoods_emptySlots(itemStack, quantity, inventoryPlayer, slotIndexes);
+
+        return quantity == 0;
+    }
+    
+    private int searchTransferGoods_NonEmptySlots(ItemStack itemStack, int quantity, InventoryPlayer inventoryPlayer, ArrayList<Integer> slotIndexes)
+    {
+        IInventory inventory = (IInventory)inventoryPlayer;
+        int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack, inventory);
+        
+        for(int i = 0; i < inventory.getSizeInventory() && quantity > 0; i++)
+        {
+            ItemStack invItemStack = inventory.getStackInSlot(i);
+            
+            if(invItemStack == null || !ItemHelper.areItemEquals(itemStack, invItemStack))
+                continue;
+            
+            int invQuantity = ItemHelper.getItemStackQuantity(invItemStack);
+            
+            if(invQuantity >= maxStackQuantity)
+                continue;
+            
+            int preparedQuantity = maxStackQuantity - invQuantity;
+            
+            if(preparedQuantity > quantity)
+                preparedQuantity = quantity;                
+
+            slotIndexes.add(i);
+            
+            quantity -= preparedQuantity;
+        }
+        
+        return quantity;
+    }
+    
+    private int searchTransferGoods_emptySlots(ItemStack itemStack, int quantity, InventoryPlayer inventoryPlayer, ArrayList<Integer> slotIndexes)
+    {
+        IInventory inventory = (IInventory)inventoryPlayer;
+        
+        for(int i = 0; i < inventory.getSizeInventory() && quantity > 0; i++)
+        {
+            ItemStack invItemStack = inventory.getStackInSlot(i);
+            
+            if(invItemStack != null)
+                continue;
+            
+            slotIndexes.add(i);
+            
+            quantity = 0;
+        }
+        
+        return quantity;
+    }
+    
     private int getPriceSlotIndex(int goodSlotIndex)
     {
         for(int i = 0; i < TileEntityStall.GoodsSlotIndexes.length; i++)
@@ -997,7 +1161,12 @@ public class ContainerStall extends ContainerTFC
     {
         return _isOwnerMode && slotNumber == TileEntityStall.ItemCount - 1; 
     }
-    
+
+    private int getBookSlotIndex()
+    {
+        return TileEntityStall.ItemCount - 1; 
+    }
+
     public boolean isGoodsSlot(int slotNumber)
     {
         return slotNumber < 2 * TileEntityStall.PriceCount && slotNumber % 2 == 1; 

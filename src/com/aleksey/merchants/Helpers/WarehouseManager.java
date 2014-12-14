@@ -390,7 +390,6 @@ public class WarehouseManager
     private int searchPays_emptySlots(ItemStack itemStack, int quantity, TileEntity tileEntity)
     {
         IInventory inventory = (IInventory)tileEntity;
-        int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack, inventory);
         PreparedGood preparedPay = _preparedPays.size() > 0 ? _preparedPays.get(_preparedPays.size() - 1): null;
         
         if(preparedPay != null && preparedPay.TileEntity != tileEntity)
