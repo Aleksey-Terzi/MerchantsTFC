@@ -656,6 +656,8 @@ public class ContainerStall extends ContainerTFC
             {
                 _stall.setOwnerUserName(player.getCommandSenderName());
                 _stall.calculateQuantitiesInWarehouse();
+                
+                _world.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
             }
         }
 
@@ -702,7 +704,11 @@ public class ContainerStall extends ContainerTFC
                     inventoryplayer.setItemStack(itemToGet);
                 
                 if(isBookSlot)
+                {
                     _stall.setOwnerUserName(null);
+                    
+                    _world.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
+                }
                 
                 if (slotItemStack.stackSize == 0)
                     slot.putStack((ItemStack)null);

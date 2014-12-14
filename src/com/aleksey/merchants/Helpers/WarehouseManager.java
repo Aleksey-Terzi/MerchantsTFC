@@ -55,7 +55,7 @@ public class WarehouseManager
         }
     }
     
-    private static final int _searchContainerRadius = 5;
+    private static final int _searchContainerRadius = 3;
     private static final int _searchWarehouseDistance = 10;
     
     private static final Class<?>[] _allowedInventories = {

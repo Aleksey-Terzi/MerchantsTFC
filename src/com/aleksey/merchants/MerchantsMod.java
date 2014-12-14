@@ -2,6 +2,7 @@ package com.aleksey.merchants;
 
 import com.aleksey.merchants.Core.BlockList;
 import com.aleksey.merchants.Core.ItemList;
+import com.aleksey.merchants.Core.Recipes;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -11,7 +12,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid="MerchantsTFC", name="Merchants", version="1.0.0", dependencies="after:TerraFirmaCraft")
+@Mod(modid="MerchantsTFC", name="Merchants", version="1.0.8", dependencies="after:TerraFirmaCraft")
 public class MerchantsMod
 {
     @Instance("MerchantsTFC")
@@ -48,7 +49,7 @@ public class MerchantsMod
         
         proxy.registerRenderInformation();
         
-        //Recipes.registerRecipes();
+        Recipes.registerRecipes();
     }
 
     @EventHandler
