@@ -203,7 +203,7 @@ public class WarehouseManager
         TEIngotPile ingotPile = (TEIngotPile)preparedPay.TileEntity;
         IInventory inventory = (IInventory)ingotPile;
         ItemStack ingotPileStack = inventory.getStackInSlot(0);
-        int totalQuantity = ItemHelper.getItemStackQuantity(_preparedPayItem);
+        int totalQuantity = preparedPay.Items.get(0).Quantity;
         
         int currentQuantity = ingotPileStack.stackSize + totalQuantity > inventory.getInventoryStackLimit()
             ? inventory.getInventoryStackLimit() - ingotPileStack.stackSize
@@ -315,7 +315,7 @@ public class WarehouseManager
         else
         {
             quantity = searchPays_NonEmptySlots(itemStack, requiredQuantity, tileEntity);
-            quantity = searchPays_emptySlots(itemStack, quantity, tileEntity);
+            quantity = searchPays_EmptySlots(itemStack, quantity, tileEntity);
         }
         
         return requiredQuantity - quantity;
@@ -323,14 +323,18 @@ public class WarehouseManager
     
     private int searchPays_Ingot(ItemStack itemStack, int quantity, TileEntity tileEntity, World world)
     {
+        IInventory inventory = (IInventory)tileEntity;
+        ItemStack invItemStack = inventory.getStackInSlot(0);
+        
+        if(invItemStack != null && !ItemHelper.areItemEquals(itemStack, invItemStack))
+            return quantity;
+        
         PreparedGood preparedPay = _preparedPays.size() > 0 ? _preparedPays.get(_preparedPays.size() - 1): null;
         
         if(preparedPay != null && preparedPay.TileEntity != tileEntity)
             preparedPay = null;
         
-        IInventory inventory = (IInventory)tileEntity;
         int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack, inventory);
-        ItemStack invItemStack = inventory.getStackInSlot(0);
         int invQuantity = invItemStack != null ? ItemHelper.getItemStackQuantity(invItemStack): 0;
         
         int addQuantity = quantity + invQuantity <= maxStackQuantity || world.isAirBlock(tileEntity.xCoord, tileEntity.yCoord + 1, tileEntity.zCoord)
@@ -387,7 +391,7 @@ public class WarehouseManager
         return quantity;
     }
     
-    private int searchPays_emptySlots(ItemStack itemStack, int quantity, TileEntity tileEntity)
+    private int searchPays_EmptySlots(ItemStack itemStack, int quantity, TileEntity tileEntity)
     {
         IInventory inventory = (IInventory)tileEntity;
         PreparedGood preparedPay = _preparedPays.size() > 0 ? _preparedPays.get(_preparedPays.size() - 1): null;
