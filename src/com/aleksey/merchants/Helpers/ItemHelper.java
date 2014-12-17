@@ -4,6 +4,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import com.bioxx.tfc.Food.ItemFoodTFC;
 import com.bioxx.tfc.TileEntities.TEIngotPile;
 import com.bioxx.tfc.api.Food;
 import com.bioxx.tfc.api.Interfaces.IFood;
@@ -42,10 +43,15 @@ public class ItemHelper
     
     public static final int getItemStackQuantity(ItemStack itemStack)
     {
+        return getItemStackQuantity(itemStack, true);
+    }
+    
+    public static final int getItemStackQuantity(ItemStack itemStack, boolean removeDecay)
+    {
         if(itemStack.getItem() instanceof IFood)
         {
             IFood food = (IFood)itemStack.getItem();
-            float foodDecay = Math.max(food.getFoodDecay(itemStack), 0);
+            float foodDecay = removeDecay ? Math.max(food.getFoodDecay(itemStack), 0): 0;
             int quantity = (int)(food.getFoodWeight(itemStack) - foodDecay);
             
             return quantity > 0 ? quantity: 0;
@@ -66,6 +72,16 @@ public class ItemHelper
             
         return Math.min(itemStack.getMaxStackSize(), inventory.getInventoryStackLimit());
     }
+
+    public static final int getItemStackMaxQuantity_SmallVessel(ItemStack itemStack)
+    {
+        Item item = itemStack.getItem();
+        
+        if(item instanceof IFood)
+            return (int)((IFood)itemStack.getItem()).getFoodMaxWeight(itemStack) / 2;
+        
+        return itemStack.getMaxStackSize();
+    }
     
     public static final void increaseStackQuantity(ItemStack itemStack, int quantity)
     {
@@ -83,7 +99,7 @@ public class ItemHelper
     public static final void setStackQuantity(ItemStack itemStack, int quantity)
     {
         if(itemStack.getItem() instanceof IFood)
-            Food.setWeight(itemStack, quantity);
+            ItemFoodTFC.createTag(itemStack, quantity);
         else
             itemStack.stackSize = quantity;
     }

@@ -69,11 +69,14 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         if(itemStack != null && itemStack.getItem() instanceof ItemWarehouseBook)
         {
             _bookInfo = WarehouseBookInfo.readFromNBT(itemStack.getTagCompound());
-            
-            if(_warehouse.existWarehouse(this.xCoord, this.yCoord, this.zCoord, _bookInfo, this.worldObj))
-                _warehouse.searchContainers(_bookInfo, this.worldObj);
-            else
-                _bookInfo = null;
+
+            if(_bookInfo != null)
+            {
+                if(_warehouse.existWarehouse(this.xCoord, this.yCoord, this.zCoord, _bookInfo, this.worldObj))
+                    _warehouse.searchContainers(_bookInfo, this.worldObj);
+                else
+                    _bookInfo = null;
+            }
         }
         else
             _bookInfo = null;

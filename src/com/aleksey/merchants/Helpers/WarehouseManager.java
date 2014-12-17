@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -15,46 +13,17 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
 
-import com.aleksey.merchants.Containers.Slots.SlotIngotPile;
 import com.aleksey.merchants.Core.Point;
 import com.aleksey.merchants.Core.WarehouseBookInfo;
 import com.aleksey.merchants.TileEntities.TileEntityWarehouse;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Containers.ContainerChestTFC;
-import com.bioxx.tfc.Containers.Slots.SlotChest;
-import com.bioxx.tfc.Containers.Slots.SlotLogPile;
-import com.bioxx.tfc.Core.Metal.MetalRegistry;
-import com.bioxx.tfc.Items.ItemIngot;
+import com.bioxx.tfc.Items.Pottery.ItemPotterySmallVessel;
 import com.bioxx.tfc.TileEntities.TEChest;
 import com.bioxx.tfc.TileEntities.TEIngotPile;
 import com.bioxx.tfc.TileEntities.TELogPile;
+import com.bioxx.tfc.api.Interfaces.IFood;
 
 public class WarehouseManager
 {
-    private class PreparedItem
-    {
-        public int SlotIndex;
-        public int Quantity;
-        
-        public PreparedItem(int slotIndex, int quantity)
-        {
-            SlotIndex = slotIndex;
-            Quantity = quantity;
-        }
-    }
-    
-    private class PreparedGood
-    {
-        public TileEntity TileEntity;
-        public ArrayList<PreparedItem> Items;
-        
-        public PreparedGood(TileEntity tileEntity)
-        {
-            TileEntity = tileEntity;
-            Items = new ArrayList<PreparedItem>();
-        }
-    }
-    
     private static final int _searchContainerRadius = 3;
     private static final int _searchWarehouseDistance = 10;
     
@@ -67,10 +36,10 @@ public class WarehouseManager
     
     private ArrayList<Point> _containers;
     private Hashtable<String, Integer> _quantities;
-    private ItemStack _preparedGoodItem;
-    private ItemStack _preparedPayItem;
-    private ArrayList<PreparedGood> _preparedGoods;
-    private ArrayList<PreparedGood> _preparedPays;
+    private ItemStack _goodItemStack;
+    private ItemStack _payItemStack;
+    private ArrayList<SearchTileEntity> _goodList;
+    private ArrayList<SearchTileEntity> _payList;
 
     public WarehouseManager()
     {
@@ -92,150 +61,18 @@ public class WarehouseManager
     
     public void confirmTrade(World world)
     {
-        confirmTradeGoods(world);
-        confirmTradePays(world);
-    }
-    
-    private void confirmTradeGoods(World world)
-    {
-        for(int i = 0; i < _preparedGoods.size(); i++)
-        {
-            PreparedGood preparedGood = _preparedGoods.get(i);
-            
-            if(preparedGood.TileEntity instanceof TEIngotPile)
-            {
-                confirmTradeGoods_Ingot(preparedGood, world);
-            }
-            else
-            {
-                IInventory inventory = (IInventory)preparedGood.TileEntity;
-                
-                openInventory(preparedGood.TileEntity);
-                
-                for(int k = 0; k < preparedGood.Items.size(); k++)
-                {
-                    PreparedItem preparedItem = preparedGood.Items.get(k);
-                    ItemStack itemStack = inventory.getStackInSlot(preparedItem.SlotIndex);
-                    
-                    ItemHelper.increaseStackQuantity(itemStack, -preparedItem.Quantity);
-                    
-                    if(itemStack.stackSize == 0)
-                        inventory.setInventorySlotContents(preparedItem.SlotIndex, (ItemStack)null);
-                }
-                
-                closeInventory(preparedGood.TileEntity, world);
-            }
-        }
+        TradeHelper.confirmTradeGoods(_goodItemStack, _goodList, world);
         
-        String key = ItemHelper.getItemKey(_preparedGoodItem);
-
-        _quantities.put(key, _quantities.get(key) - ItemHelper.getItemStackQuantity(_preparedGoodItem));
+        String goodKey = ItemHelper.getItemKey(_goodItemStack);
+        _quantities.put(goodKey, _quantities.get(goodKey) - ItemHelper.getItemStackQuantity(_goodItemStack));        
+        _goodList = null;
         
-        _preparedGoods = null;
-    }
-    
-    private void confirmTradeGoods_Ingot(PreparedGood preparedGood, World world)
-    {
-        TEIngotPile ingotPile = (TEIngotPile)preparedGood.TileEntity;
-        IInventory inventory = (IInventory)ingotPile;
-        int quantity = ItemHelper.getItemStackQuantity(_preparedGoodItem);
+        TradeHelper.confirmTradePays(_payItemStack, _payList, _containers, world);
         
-        if (inventory.getStackInSlot(0).stackSize < quantity)
-            return;
-        
-        ingotPile.injectContents(0, -quantity);
-
-        world.notifyBlockOfNeighborChange(ingotPile.xCoord, ingotPile.yCoord + 1, ingotPile.zCoord, TFCBlocks.IngotPile);
-
-        if (inventory.getStackInSlot(0).stackSize < 1)
-            world.setBlockToAir(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord);
-
-        world.markBlockForUpdate(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord);
-    }
-    
-    private void confirmTradePays(World world)
-    {
-        for(int i = 0; i < _preparedPays.size(); i++)
-        {
-            PreparedGood preparedPay = _preparedPays.get(i);
-            
-            if(preparedPay.TileEntity instanceof TEIngotPile)
-            {
-                confirmTradePays_Ingot(preparedPay, world);
-            }
-            else
-            {
-                IInventory inventory = (IInventory)preparedPay.TileEntity;
-                
-                openInventory(preparedPay.TileEntity);
-                
-                for(int k = 0; k < preparedPay.Items.size(); k++)
-                {
-                    PreparedItem preparedItem = preparedPay.Items.get(k);
-                    ItemStack invItemStack = inventory.getStackInSlot(preparedItem.SlotIndex);
-                    
-                    if(invItemStack == null)
-                    {
-                        invItemStack = _preparedPayItem.copy();
-                        
-                        ItemHelper.setStackQuantity(invItemStack, preparedItem.Quantity);
-                        
-                        inventory.setInventorySlotContents(preparedItem.SlotIndex, invItemStack);
-                    }
-                    else
-                        ItemHelper.increaseStackQuantity(invItemStack, preparedItem.Quantity);
-                }
-                
-                closeInventory(preparedPay.TileEntity, world);
-            }
-        }
-        
-        String key = ItemHelper.getItemKey(_preparedPayItem);
-        int currentQuantity = _quantities.containsKey(key) ? _quantities.get(key): 0;
-
-        _quantities.put(key, currentQuantity + ItemHelper.getItemStackQuantity(_preparedPayItem));
-        
-        _preparedPays = null;
-    }
-    
-    private void confirmTradePays_Ingot(PreparedGood preparedPay, World world)
-    {
-        TEIngotPile ingotPile = (TEIngotPile)preparedPay.TileEntity;
-        IInventory inventory = (IInventory)ingotPile;
-        ItemStack ingotPileStack = inventory.getStackInSlot(0);
-        int totalQuantity = preparedPay.Items.get(0).Quantity;
-        
-        int currentQuantity = ingotPileStack.stackSize + totalQuantity > inventory.getInventoryStackLimit()
-            ? inventory.getInventoryStackLimit() - ingotPileStack.stackSize
-            : totalQuantity;
-            
-        if(currentQuantity > 0)
-        {
-            ingotPile.injectContents(0, currentQuantity);
-            ingotPile.validate();
-    
-            world.addBlockEvent(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord, TFCBlocks.IngotPile, 0, 0);
-            world.markBlockForUpdate(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord);
-            
-            totalQuantity -= currentQuantity;
-        }
-        
-        if (totalQuantity > 0)
-        {
-            world.setBlock(ingotPile.xCoord, ingotPile.yCoord + 1, ingotPile.zCoord, TFCBlocks.IngotPile, 0, 0x2);
-            
-            Item item = _preparedPayItem.getItem();
-            
-            ingotPile = (TEIngotPile)world.getTileEntity(ingotPile.xCoord, ingotPile.yCoord + 1, ingotPile.zCoord);
-            
-            ((IInventory)ingotPile).setInventorySlotContents(0, new ItemStack(item, totalQuantity, 0));
-            
-            ingotPile.setType(MetalRegistry.instance.getMetalFromItem(item).Name);
-            
-            world.markBlockForUpdate(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord);
-            
-            _containers.add(new Point(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord));
-        }
+        String payKey = ItemHelper.getItemKey(_payItemStack);
+        int currentQuantity = _quantities.containsKey(payKey) ? _quantities.get(payKey): 0;
+        _quantities.put(payKey, currentQuantity + ItemHelper.getItemStackQuantity(_payItemStack));
+        _payList = null;
     }
     
     public PrepareTradeResult prepareTrade(ItemStack goodStack, ItemStack payStack, World world)
@@ -246,8 +83,22 @@ public class WarehouseManager
         if(goodQuantity == 0 || getQuantity(goodStack) < goodQuantity)
             return PrepareTradeResult.NoGoods;
         
-        _preparedGoods = new ArrayList<PreparedGood>();
-        _preparedPays = new ArrayList<PreparedGood>();
+        _goodList = new ArrayList<SearchTileEntity>();
+        _payList = new ArrayList<SearchTileEntity>();
+        
+        if(payStack.getItem() instanceof IFood)
+        {
+            for(int i = 0; i < _containers.size() && payQuantity > 0; i++)
+            {
+                Point p = _containers.get(i); 
+                TileEntity tileEntity = world.getTileEntity(p.X, p.Y, p.Z);
+                
+                if(tileEntity == null || !(tileEntity instanceof IInventory))
+                    continue;
+                
+                payQuantity -= SearchHelper.searchFreeSpaceInSmallVessels(payStack, payQuantity, tileEntity, _payList);
+            }
+        }
 
         for(int i = 0; i < _containers.size() && (goodQuantity > 0 || payQuantity > 0); i++)
         {
@@ -257,166 +108,20 @@ public class WarehouseManager
             if(tileEntity == null || !(tileEntity instanceof IInventory))
                 continue;
             
-            goodQuantity -= searchGoods(goodStack, goodQuantity, tileEntity);
-            payQuantity -= searchPays(payStack, payQuantity, tileEntity, world);
+            if(goodQuantity > 0)
+                goodQuantity -= SearchHelper.searchItems(goodStack, goodQuantity, tileEntity, _goodList);
+            
+            if(payQuantity > 0)
+                payQuantity -= SearchHelper.searchFreeSpace(payStack, payQuantity, tileEntity, world, _payList);
         }
         
-        _preparedGoodItem = goodStack.copy();
-        _preparedPayItem = payStack.copy();
+        _goodItemStack = goodStack.copy();
+        _payItemStack = payStack.copy();
         
         if(goodQuantity == 0 && payQuantity == 0)
             return PrepareTradeResult.Success;
         
         return goodQuantity > 0 ? PrepareTradeResult.NoGoods: PrepareTradeResult.NoPays;
-    }
-    
-    private int searchGoods(ItemStack itemStack, int requiredQuantity, TileEntity tileEntity)
-    {
-        IInventory inventory = (IInventory)tileEntity;
-        PreparedGood preparedGood = null;
-        int quantity = requiredQuantity;
-        
-        for(int i = 0; i < inventory.getSizeInventory() && quantity > 0; i++)
-        {
-            ItemStack invItemStack = inventory.getStackInSlot(i);
-            
-            if(invItemStack == null || !ItemHelper.areItemEquals(itemStack, invItemStack))
-                continue;
-            
-            int invQuantity = ItemHelper.getItemStackQuantity(invItemStack);
-            
-            if(invQuantity == 0)
-                continue;
-            
-            if(preparedGood == null)
-                _preparedGoods.add(preparedGood = new PreparedGood(tileEntity));
-            
-            PreparedItem preparedItem = new PreparedItem(i, invQuantity < quantity ? invQuantity: quantity);
-            
-            preparedGood.Items.add(preparedItem);
-            
-            quantity -= preparedItem.Quantity;
-        }
-        
-        return requiredQuantity - quantity;
-    }
-    
-    private int searchPays(ItemStack itemStack, int requiredQuantity, TileEntity tileEntity, World world)
-    {
-        Slot slot = getSlot(tileEntity);
-        
-        if(!slot.isItemValid(itemStack))
-            return 0;
-        
-        int quantity;
-        
-        if(tileEntity instanceof TEIngotPile)
-            quantity = searchPays_Ingot(itemStack, requiredQuantity, tileEntity, world);
-        else
-        {
-            quantity = searchPays_NonEmptySlots(itemStack, requiredQuantity, tileEntity);
-            quantity = searchPays_EmptySlots(itemStack, quantity, tileEntity);
-        }
-        
-        return requiredQuantity - quantity;
-    }
-    
-    private int searchPays_Ingot(ItemStack itemStack, int quantity, TileEntity tileEntity, World world)
-    {
-        IInventory inventory = (IInventory)tileEntity;
-        ItemStack invItemStack = inventory.getStackInSlot(0);
-        
-        if(invItemStack != null && !ItemHelper.areItemEquals(itemStack, invItemStack))
-            return quantity;
-        
-        PreparedGood preparedPay = _preparedPays.size() > 0 ? _preparedPays.get(_preparedPays.size() - 1): null;
-        
-        if(preparedPay != null && preparedPay.TileEntity != tileEntity)
-            preparedPay = null;
-        
-        int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack, inventory);
-        int invQuantity = invItemStack != null ? ItemHelper.getItemStackQuantity(invItemStack): 0;
-        
-        int addQuantity = quantity + invQuantity <= maxStackQuantity || world.isAirBlock(tileEntity.xCoord, tileEntity.yCoord + 1, tileEntity.zCoord)
-                ? quantity
-                : maxStackQuantity - invQuantity;
-        
-        if(addQuantity > 0)
-        {
-            if(preparedPay == null)
-                _preparedPays.add(preparedPay = new PreparedGood(tileEntity));
-            
-            preparedPay.Items.add(new PreparedItem(0, addQuantity));
-            
-            quantity -= addQuantity;
-        }
-        
-        return quantity;
-    }
-    
-    private int searchPays_NonEmptySlots(ItemStack itemStack, int quantity, TileEntity tileEntity)
-    {
-        IInventory inventory = (IInventory)tileEntity;
-        int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack, inventory);
-        PreparedGood preparedPay = _preparedPays.size() > 0 ? _preparedPays.get(_preparedPays.size() - 1): null;
-        
-        if(preparedPay != null && preparedPay.TileEntity != tileEntity)
-            preparedPay = null;
-        
-        for(int i = 0; i < inventory.getSizeInventory() && quantity > 0; i++)
-        {
-            ItemStack invItemStack = inventory.getStackInSlot(i);
-            
-            if(invItemStack == null || !ItemHelper.areItemEquals(itemStack, invItemStack))
-                continue;
-            
-            int invQuantity = ItemHelper.getItemStackQuantity(invItemStack);
-            
-            if(invQuantity >= maxStackQuantity)
-                continue;
-            
-            if(preparedPay == null)
-                _preparedPays.add(preparedPay = new PreparedGood(tileEntity));
-            
-            PreparedItem preparedItem = new PreparedItem(i, maxStackQuantity - invQuantity);
-            
-            if(preparedItem.Quantity > quantity)
-                preparedItem.Quantity = quantity;                
-
-            preparedPay.Items.add(preparedItem);
-            
-            quantity -= preparedItem.Quantity;
-        }
-        
-        return quantity;
-    }
-    
-    private int searchPays_EmptySlots(ItemStack itemStack, int quantity, TileEntity tileEntity)
-    {
-        IInventory inventory = (IInventory)tileEntity;
-        PreparedGood preparedPay = _preparedPays.size() > 0 ? _preparedPays.get(_preparedPays.size() - 1): null;
-        
-        if(preparedPay != null && preparedPay.TileEntity != tileEntity)
-            preparedPay = null;
-        
-        for(int i = 0; i < inventory.getSizeInventory() && quantity > 0; i++)
-        {
-            ItemStack invItemStack = inventory.getStackInSlot(i);
-            
-            if(invItemStack != null)
-                continue;
-            
-            if(preparedPay == null)
-                _preparedPays.add(preparedPay = new PreparedGood(tileEntity));
-            
-            PreparedItem preparedItem = new PreparedItem(i, quantity);
-
-            preparedPay.Items.add(preparedItem);
-            
-            quantity -= preparedItem.Quantity;
-        }
-        
-        return quantity;
     }
     
     public boolean existWarehouse(int stallX, int stallY, int stallZ, WarehouseBookInfo info, World world)
@@ -470,15 +175,40 @@ public class WarehouseManager
             
             if(itemStack == null)
                 continue;
-
-            int quantity = ItemHelper.getItemStackQuantity(itemStack);
-            String itemKey = ItemHelper.getItemKey(itemStack);
-
-            if(_quantities.containsKey(itemKey))
-                quantity += _quantities.get(itemKey);
             
-            _quantities.put(itemKey, quantity);
+            if(itemStack.getItem() instanceof ItemPotterySmallVessel)
+            {
+                ItemStack[] vesselItemStacks = SmallVesselHelper.getVesselItemStacks(itemStack);
+                
+                if(vesselItemStacks == null
+                        || vesselItemStacks[0] == null && vesselItemStacks[1] == null && vesselItemStacks[2] == null && vesselItemStacks[3] == null
+                        )
+                {
+                    addItemStackQuantity(itemStack);
+                }
+                else
+                {
+                    for(int k = 0; k < vesselItemStacks.length; k++)
+                    {
+                        if(vesselItemStacks[k] != null)
+                            addItemStackQuantity(vesselItemStacks[k]);
+                    }
+                }
+            }
+            else
+                addItemStackQuantity(itemStack);
         }
+    }
+    
+    private void addItemStackQuantity(ItemStack itemStack)
+    {
+        int quantity = ItemHelper.getItemStackQuantity(itemStack);
+        String itemKey = ItemHelper.getItemKey(itemStack);
+
+        if(_quantities.containsKey(itemKey))
+            quantity += _quantities.get(itemKey);
+        
+        _quantities.put(itemKey, quantity);        
     }
     
     public void writeToNBT(NBTTagCompound nbt)
@@ -545,48 +275,6 @@ public class WarehouseManager
                 _quantities.put(qtyTag.getString("Key"), qtyTag.getInteger("Value"));
             }
         }
-    }
-    
-    private void openInventory(TileEntity tileEntity)
-    {
-        IInventory inventory = (IInventory)tileEntity;
-        Class<?> cls = tileEntity.getClass();
-        
-        if(cls == TELogPile.class)
-            inventory.openInventory();
-    }
-    
-    private void closeInventory(TileEntity tileEntity, World world)
-    {
-        IInventory inventory = (IInventory)tileEntity;
-        Class<?> cls = tileEntity.getClass();
-
-        if(cls == TELogPile.class)
-        {
-            inventory.closeInventory();
-        }
-        
-        world.markBlockForUpdate(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
-    }
-    
-    private Slot getSlot(TileEntity tileEntity)
-    {
-        IInventory inventory = (IInventory)tileEntity;
-        Class<?> cls = tileEntity.getClass();
-        
-        if(cls == TEChest.class)
-            return new SlotChest(inventory, 0, 0, 0).addItemException(ContainerChestTFC.getExceptions());
-        
-        if(cls == TileEntityChest.class)
-            return new Slot(inventory, 0, 0, 0);
-        
-        if(cls == TELogPile.class)
-            return new SlotLogPile(null, inventory, 0, 0, 0);
-        
-        if(cls == TEIngotPile.class)
-            return new SlotIngotPile(inventory, 0, 0, 0);
-
-        return null;
     }
 
     private boolean isAllowedInventory(TileEntity tileEntity)
