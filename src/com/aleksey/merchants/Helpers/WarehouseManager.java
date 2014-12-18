@@ -17,9 +17,11 @@ import com.aleksey.merchants.Core.Point;
 import com.aleksey.merchants.Core.WarehouseBookInfo;
 import com.aleksey.merchants.TileEntities.TileEntityWarehouse;
 import com.bioxx.tfc.Items.Pottery.ItemPotterySmallVessel;
+import com.bioxx.tfc.TileEntities.TEBarrel;
 import com.bioxx.tfc.TileEntities.TEChest;
 import com.bioxx.tfc.TileEntities.TEIngotPile;
 import com.bioxx.tfc.TileEntities.TELogPile;
+import com.bioxx.tfc.TileEntities.TEVessel;
 import com.bioxx.tfc.api.Interfaces.IFood;
 
 public class WarehouseManager
@@ -32,6 +34,8 @@ public class WarehouseManager
         TEChest.class,
         TELogPile.class,
         TEIngotPile.class,
+        TEBarrel.class,
+        TEVessel.class,
     };
     
     private ArrayList<Point> _containers;
@@ -284,7 +288,7 @@ public class WarehouseManager
         for(int i = 0; i < _allowedInventories.length; i++)
         {
             if(cls == _allowedInventories[i])
-                return true;
+                return SearchHelper.canSearchItem(tileEntity);
         }
         
         return false;

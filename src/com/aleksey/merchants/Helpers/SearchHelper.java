@@ -14,14 +14,50 @@ import com.bioxx.tfc.Containers.ContainerChestTFC;
 import com.bioxx.tfc.Containers.Slots.SlotChest;
 import com.bioxx.tfc.Containers.Slots.SlotLogPile;
 import com.bioxx.tfc.Items.Pottery.ItemPotterySmallVessel;
+import com.bioxx.tfc.TileEntities.TEBarrel;
 import com.bioxx.tfc.TileEntities.TEChest;
 import com.bioxx.tfc.TileEntities.TEIngotPile;
 import com.bioxx.tfc.TileEntities.TELogPile;
+import com.bioxx.tfc.TileEntities.TEVessel;
+import com.bioxx.tfc.api.Food;
+import com.bioxx.tfc.api.Enums.EnumSize;
+import com.bioxx.tfc.api.Interfaces.IFood;
 
 public class SearchHelper
 {
+    public static boolean canSearchItem(TileEntity tileEntity)
+    {
+        if(!(tileEntity instanceof TEBarrel))
+            return true;
+        
+        TEBarrel barrel = (TEBarrel)tileEntity;
+        
+        if(!barrel.getSealed())
+            return true;
+        
+        ItemStack itemStack = barrel.getInputStack();
+        
+        return barrel.getFluidLevel() > 0
+                && itemStack != null
+                && (itemStack.getItem() instanceof IFood)
+                && Food.isPickled(itemStack);
+    }
+    
+    private static boolean canSearchFreeSpace(TileEntity tileEntity)
+    {
+        if(!(tileEntity instanceof TEBarrel))
+            return true;
+        
+        TEBarrel barrel = (TEBarrel)tileEntity;
+        
+        return !barrel.getSealed() && barrel.getFluidLevel() == 0;
+    }
+    
     public static int searchItems(ItemStack itemStack, int requiredQuantity, TileEntity tileEntity, ArrayList<SearchTileEntity> searchList)
     {
+        if(!canSearchItem(tileEntity))
+            return 0;
+        
         IInventory inventory = (IInventory)tileEntity;
         SearchTileEntity searchTileEntity = null;
         int quantity = requiredQuantity;
@@ -55,9 +91,12 @@ public class SearchHelper
         
         return requiredQuantity - quantity;
     }
-    
+
     public static int searchFreeSpaceInSmallVessels(ItemStack itemStack, int requiredQuantity, TileEntity tileEntity, ArrayList<SearchTileEntity> searchList)
     {
+        if(!canSearchFreeSpace(tileEntity))
+            return 0;
+        
         IInventory inventory = (IInventory)tileEntity;
         SearchTileEntity searchTileEntity = searchList.size() > 0 ? searchList.get(searchList.size() - 1): null;
         
@@ -96,9 +135,7 @@ public class SearchHelper
     
     public static int searchFreeSpace(ItemStack itemStack, int requiredQuantity, TileEntity tileEntity, World world, ArrayList<SearchTileEntity> searchList)
     {
-        Slot slot = getSlot(tileEntity);
-        
-        if(!slot.isItemValid(itemStack))
+        if(!getSlot(tileEntity).isItemValid(itemStack) || !canSearchFreeSpace(tileEntity))
             return 0;
         
         int quantity;
@@ -233,6 +270,12 @@ public class SearchHelper
         
         if(cls == TEIngotPile.class)
             return new SlotIngotPile(inventory, 0, 0, 0);
+        
+        if(cls == TEBarrel.class)
+            return new SlotChest(inventory, 0, 0, 0).setSize(EnumSize.LARGE).addItemException(ContainerChestTFC.getExceptions());
+
+        if(cls == TEVessel.class)
+            return new SlotChest(inventory, 0, 0, 0).setSize(EnumSize.MEDIUM).addItemException(ContainerChestTFC.getExceptions());
 
         return null;
     }
