@@ -22,6 +22,7 @@ import com.bioxx.tfc.TileEntities.TEChest;
 import com.bioxx.tfc.TileEntities.TEIngotPile;
 import com.bioxx.tfc.TileEntities.TELogPile;
 import com.bioxx.tfc.TileEntities.TEVessel;
+import com.bioxx.tfc.TileEntities.TileEntityToolRack;
 import com.bioxx.tfc.api.Interfaces.IFood;
 
 public class WarehouseManager
@@ -36,6 +37,7 @@ public class WarehouseManager
         TEIngotPile.class,
         TEBarrel.class,
         TEVessel.class,
+        TileEntityToolRack.class,
     };
     
     private ArrayList<Point> _containers;

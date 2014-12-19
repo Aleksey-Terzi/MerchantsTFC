@@ -4,21 +4,32 @@ import java.util.ArrayList;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemAxe;
+import net.minecraft.item.ItemBow;
+import net.minecraft.item.ItemHoe;
+import net.minecraft.item.ItemShears;
+import net.minecraft.item.ItemSpade;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
+import net.minecraft.item.ItemTool;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
 
-import com.aleksey.merchants.Containers.Slots.SlotIngotPile;
 import com.bioxx.tfc.Containers.ContainerChestTFC;
 import com.bioxx.tfc.Containers.Slots.SlotChest;
 import com.bioxx.tfc.Containers.Slots.SlotLogPile;
 import com.bioxx.tfc.Items.Pottery.ItemPotterySmallVessel;
+import com.bioxx.tfc.Items.Tools.ItemProPick;
+import com.bioxx.tfc.Items.Tools.ItemSpindle;
+import com.bioxx.tfc.Items.Tools.ItemWeapon;
 import com.bioxx.tfc.TileEntities.TEBarrel;
 import com.bioxx.tfc.TileEntities.TEChest;
 import com.bioxx.tfc.TileEntities.TEIngotPile;
 import com.bioxx.tfc.TileEntities.TELogPile;
 import com.bioxx.tfc.TileEntities.TEVessel;
+import com.bioxx.tfc.TileEntities.TileEntityToolRack;
 import com.bioxx.tfc.api.Food;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Interfaces.IFood;
@@ -135,7 +146,7 @@ public class SearchHelper
     
     public static int searchFreeSpace(ItemStack itemStack, int requiredQuantity, TileEntity tileEntity, World world, ArrayList<SearchTileEntity> searchList)
     {
-        if(!getSlot(tileEntity).isItemValid(itemStack) || !canSearchFreeSpace(tileEntity))
+        if(!isItemValid(itemStack, tileEntity) || !canSearchFreeSpace(tileEntity))
             return 0;
         
         int quantity;
@@ -183,7 +194,7 @@ public class SearchHelper
         
         return quantity;
     }
-    
+
     private static int searchFreeSpace_NonEmptySlots(ItemStack itemStack, int quantity, TileEntity tileEntity, ArrayList<SearchTileEntity> searchList)
     {
         IInventory inventory = (IInventory)tileEntity;
@@ -254,29 +265,62 @@ public class SearchHelper
         return quantity;
     }
     
-    private static Slot getSlot(TileEntity tileEntity)
+    private static boolean isItemValid(ItemStack itemStack, TileEntity tileEntity)
     {
         IInventory inventory = (IInventory)tileEntity;
         Class<?> cls = tileEntity.getClass();
         
         if(cls == TEChest.class)
-            return new SlotChest(inventory, 0, 0, 0).addItemException(ContainerChestTFC.getExceptions());
+            return new SlotChest(inventory, 0, 0, 0).addItemException(ContainerChestTFC.getExceptions()).isItemValid(itemStack);
         
         if(cls == TileEntityChest.class)
-            return new Slot(inventory, 0, 0, 0);
+            return new Slot(inventory, 0, 0, 0).isItemValid(itemStack);
         
         if(cls == TELogPile.class)
-            return new SlotLogPile(null, inventory, 0, 0, 0);
+            return new SlotLogPile(null, inventory, 0, 0, 0).isItemValid(itemStack);
         
         if(cls == TEIngotPile.class)
-            return new SlotIngotPile(inventory, 0, 0, 0);
+            return isItemValid_IngotPile(itemStack);
         
         if(cls == TEBarrel.class)
-            return new SlotChest(inventory, 0, 0, 0).setSize(EnumSize.LARGE).addItemException(ContainerChestTFC.getExceptions());
+            return new SlotChest(inventory, 0, 0, 0).setSize(EnumSize.LARGE).addItemException(ContainerChestTFC.getExceptions()).isItemValid(itemStack);
 
         if(cls == TEVessel.class)
-            return new SlotChest(inventory, 0, 0, 0).setSize(EnumSize.MEDIUM).addItemException(ContainerChestTFC.getExceptions());
+            return new SlotChest(inventory, 0, 0, 0).setSize(EnumSize.MEDIUM).addItemException(ContainerChestTFC.getExceptions()).isItemValid(itemStack);
+        
+        if(cls == TileEntityToolRack.class)
+            return isItemValid_ToolRack(itemStack);
 
-        return null;
+        return false;
+    }
+    
+    private static boolean isItemValid_IngotPile(ItemStack itemStack)
+    {
+        Item item = itemStack.getItem();
+        
+        for(int i = 0; i < TEIngotPile.INGOTS.length; i++)
+        {
+            if(item == TEIngotPile.INGOTS[i])
+                return true;
+        }
+        
+        return false;
+    }
+    
+    private static boolean isItemValid_ToolRack(ItemStack itemStack)
+    {
+        Item item = itemStack.getItem();
+        
+        return item instanceof ItemTool ||
+            item instanceof ItemWeapon ||
+            item instanceof ItemHoe ||
+            item instanceof ItemProPick ||
+            item instanceof ItemBow ||
+            item instanceof ItemSword ||
+            item instanceof ItemAxe ||
+            item instanceof ItemSpade ||
+            item instanceof ItemShears ||
+            item instanceof ItemSpindle
+            ;
     }
 }
