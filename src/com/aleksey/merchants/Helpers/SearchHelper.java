@@ -144,7 +144,14 @@ public class SearchHelper
         return requiredQuantity - quantity;
     }
     
-    public static int searchFreeSpace(ItemStack itemStack, int requiredQuantity, TileEntity tileEntity, World world, ArrayList<SearchTileEntity> searchList)
+    public static int searchFreeSpace(
+            ItemStack itemStack,
+            int requiredQuantity,
+            TileEntity tileEntity,
+            int extendLimitY,
+            World world,
+            ArrayList<SearchTileEntity> searchList
+            )
     {
         if(!isItemValid(itemStack, tileEntity) || !canSearchFreeSpace(tileEntity))
             return 0;
@@ -152,17 +159,29 @@ public class SearchHelper
         int quantity;
         
         if(tileEntity instanceof TEIngotPile)
-            quantity = searchFreeSpace_Ingot(itemStack, requiredQuantity, tileEntity, world, searchList);
+            quantity = searchFreeSpace_Ingot(itemStack, requiredQuantity, tileEntity, extendLimitY, world, searchList);
         else
         {
             quantity = searchFreeSpace_NonEmptySlots(itemStack, requiredQuantity, tileEntity, searchList);
-            quantity = searchFreeSpace_EmptySlots(itemStack, quantity, tileEntity, searchList);
+            
+            if(quantity > 0)
+                quantity = searchFreeSpace_EmptySlots(itemStack, quantity, tileEntity, searchList);
+            
+            if(quantity > 0 && tileEntity instanceof TELogPile)
+                quantity = searchFreeSpace_LogPile(itemStack, quantity, tileEntity, extendLimitY, world, searchList);
         }
         
         return requiredQuantity - quantity;
     }
     
-    private static int searchFreeSpace_Ingot(ItemStack itemStack, int quantity, TileEntity tileEntity, World world, ArrayList<SearchTileEntity> searchList)
+    private static int searchFreeSpace_Ingot(
+            ItemStack itemStack,
+            int quantity,
+            TileEntity tileEntity,
+            int extendLimitY,
+            World world,
+            ArrayList<SearchTileEntity> searchList
+            )
     {
         IInventory inventory = (IInventory)tileEntity;
         ItemStack invItemStack = inventory.getStackInSlot(0);
@@ -178,7 +197,9 @@ public class SearchHelper
         int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack, inventory);
         int invQuantity = invItemStack != null ? ItemHelper.getItemStackQuantity(invItemStack): 0;
         
-        int addQuantity = quantity + invQuantity <= maxStackQuantity || world.isAirBlock(tileEntity.xCoord, tileEntity.yCoord + 1, tileEntity.zCoord)
+        int addQuantity = quantity + invQuantity <= maxStackQuantity
+                    || tileEntity.yCoord < extendLimitY
+                        && world.isAirBlock(tileEntity.xCoord, tileEntity.yCoord + 1, tileEntity.zCoord)
                 ? quantity
                 : maxStackQuantity - invQuantity;
         
@@ -240,6 +261,7 @@ public class SearchHelper
     private static int searchFreeSpace_EmptySlots(ItemStack itemStack, int quantity, TileEntity tileEntity, ArrayList<SearchTileEntity> searchList)
     {
         IInventory inventory = (IInventory)tileEntity;
+        int maxStackQuantity = ItemHelper.getItemStackMaxQuantity(itemStack, inventory);
         SearchTileEntity searchTileEntity = searchList.size() > 0 ? searchList.get(searchList.size() - 1): null;
         
         if(searchTileEntity != null && searchTileEntity.TileEntity != tileEntity)
@@ -255,14 +277,42 @@ public class SearchHelper
             if(searchTileEntity == null)
                 searchList.add(searchTileEntity = new SearchTileEntity(tileEntity));
             
-            SearchItem searchItem = new SearchItem(i, quantity);
+            SearchItem searchItem = new SearchItem(i, maxStackQuantity);
 
+            if(searchItem.Quantity > quantity)
+                searchItem.Quantity = quantity;
+            
             searchTileEntity.Items.add(searchItem);
             
             quantity -= searchItem.Quantity;
         }
         
         return quantity;
+    }
+    
+    private static int searchFreeSpace_LogPile(
+            ItemStack itemStack,
+            int quantity,
+            TileEntity tileEntity,
+            int extendLimitY,
+            World world,
+            ArrayList<SearchTileEntity> searchList
+            )
+    {
+        if(tileEntity.yCoord == extendLimitY || !world.isAirBlock(tileEntity.xCoord, tileEntity.yCoord + 1, tileEntity.zCoord))
+            return quantity;
+        
+        SearchTileEntity searchTileEntity = searchList.size() > 0 ? searchList.get(searchList.size() - 1): null;
+        
+        if(searchTileEntity != null && searchTileEntity.TileEntity != tileEntity)
+            searchTileEntity = null;
+        
+        if(searchTileEntity == null)
+            searchList.add(searchTileEntity = new SearchTileEntity(tileEntity));
+            
+        searchTileEntity.Items.add(new SearchItem(-1, quantity));
+            
+        return 0;
     }
     
     private static boolean isItemValid(ItemStack itemStack, TileEntity tileEntity)

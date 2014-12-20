@@ -81,7 +81,7 @@ public class WarehouseManager
         _payList = null;
     }
     
-    public PrepareTradeResult prepareTrade(ItemStack goodStack, ItemStack payStack, World world)
+    public PrepareTradeResult prepareTrade(ItemStack goodStack, ItemStack payStack, WarehouseBookInfo info, World world)
     {
         int goodQuantity = ItemHelper.getItemStackQuantity(goodStack);
         int payQuantity = ItemHelper.getItemStackQuantity(payStack);
@@ -105,6 +105,8 @@ public class WarehouseManager
                 payQuantity -= SearchHelper.searchFreeSpaceInSmallVessels(payStack, payQuantity, tileEntity, _payList);
             }
         }
+        
+        int extendLimitY = info.Y + _searchContainerRadius;
 
         for(int i = 0; i < _containers.size() && (goodQuantity > 0 || payQuantity > 0); i++)
         {
@@ -118,7 +120,7 @@ public class WarehouseManager
                 goodQuantity -= SearchHelper.searchItems(goodStack, goodQuantity, tileEntity, _goodList);
             
             if(payQuantity > 0)
-                payQuantity -= SearchHelper.searchFreeSpace(payStack, payQuantity, tileEntity, world, _payList);
+                payQuantity -= SearchHelper.searchFreeSpace(payStack, payQuantity, tileEntity, extendLimitY, world, _payList);
         }
         
         _goodItemStack = goodStack.copy();

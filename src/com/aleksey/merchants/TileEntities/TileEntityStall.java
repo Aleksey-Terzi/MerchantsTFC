@@ -97,7 +97,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
     public PrepareTradeResult prepareTrade(ItemStack goodStack, ItemStack payStack)
     {
         return _bookInfo != null && _warehouse.existWarehouse(this.xCoord, this.yCoord, this.zCoord, _bookInfo, this.worldObj)
-            ? _warehouse.prepareTrade(goodStack, payStack, this.worldObj)
+            ? _warehouse.prepareTrade(goodStack, payStack, _bookInfo, this.worldObj)
             : PrepareTradeResult.NoGoods;
     }
 

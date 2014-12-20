@@ -19,39 +19,16 @@ public class TradeHelper
 {
     public static void confirmTradeGoods(ItemStack goodItemStack, ArrayList<SearchTileEntity> goodList, World world)
     {
-        boolean isGoodVessel = goodItemStack.getItem() instanceof ItemPotterySmallVessel;
-        
         for(int i = 0; i < goodList.size(); i++)
         {
             SearchTileEntity goodTileEntity = goodList.get(i);
             
             if(goodTileEntity.TileEntity instanceof TEIngotPile)
-            {
                 confirmTradeGoods_Ingot(goodItemStack, goodTileEntity, world);
-                continue;
-            }
-
-            IInventory inventory = (IInventory)goodTileEntity.TileEntity;
+            else
+                confirmTradeGoods_Other(goodItemStack, goodTileEntity);
             
-            openInventory(goodTileEntity.TileEntity);
-            
-            for(int k = 0; k < goodTileEntity.Items.size(); k++)
-            {
-                SearchItem goodItem = goodTileEntity.Items.get(k);
-                ItemStack itemStack = inventory.getStackInSlot(goodItem.SlotIndex);
-
-                if(!isGoodVessel && itemStack.getItem() instanceof ItemPotterySmallVessel)
-                    SmallVesselHelper.decreaseItemStackQuantity(goodItem.Quantity, goodItemStack, itemStack);
-                else
-                {
-                    ItemHelper.increaseStackQuantity(itemStack, -goodItem.Quantity);
-                    
-                    if(itemStack.stackSize == 0)
-                        inventory.setInventorySlotContents(goodItem.SlotIndex, (ItemStack)null);
-                }
-            }
-            
-            closeInventory(goodTileEntity.TileEntity, world);
+            world.markBlockForUpdate(goodTileEntity.TileEntity.xCoord, goodTileEntity.TileEntity.yCoord, goodTileEntity.TileEntity.zCoord);
         }
     }
     
@@ -70,48 +47,49 @@ public class TradeHelper
 
         if (inventory.getStackInSlot(0).stackSize < 1)
             world.setBlockToAir(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord);
+    }
+    
+    public static void confirmTradeGoods_Other(ItemStack goodItemStack, SearchTileEntity goodTileEntity)
+    {
+        boolean isGoodVessel = goodItemStack.getItem() instanceof ItemPotterySmallVessel;
+        boolean isLogPile = goodTileEntity.TileEntity instanceof TELogPile;
+        IInventory inventory = (IInventory)goodTileEntity.TileEntity;
+        
+        if(isLogPile)
+            inventory.openInventory();
+        
+        for(int k = 0; k < goodTileEntity.Items.size(); k++)
+        {
+            SearchItem goodItem = goodTileEntity.Items.get(k);
+            ItemStack itemStack = inventory.getStackInSlot(goodItem.SlotIndex);
 
-        world.markBlockForUpdate(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord);
+            if(!isGoodVessel && itemStack.getItem() instanceof ItemPotterySmallVessel)
+                SmallVesselHelper.decreaseItemStackQuantity(goodItem.Quantity, goodItemStack, itemStack);
+            else
+            {
+                ItemHelper.increaseStackQuantity(itemStack, -goodItem.Quantity);
+                
+                if(itemStack.stackSize == 0)
+                    inventory.setInventorySlotContents(goodItem.SlotIndex, (ItemStack)null);
+            }
+        }
+        
+        if(isLogPile)
+            inventory.closeInventory();
     }
     
     public static void confirmTradePays(ItemStack payItemStack, ArrayList<SearchTileEntity> payList, ArrayList<Point> containers, World world)
     {
-        boolean isPayVessel = payItemStack.getItem() instanceof ItemPotterySmallVessel;
-        
         for(int i = 0; i < payList.size(); i++)
         {
             SearchTileEntity payTileEntity = payList.get(i);
             
             if(payTileEntity.TileEntity instanceof TEIngotPile)
-            {
                 confirmTradePays_Ingot(payItemStack, payTileEntity, containers, world);
-                continue;
-            }
+            else
+                confirmTradePays_Other(payItemStack, payTileEntity, containers, world);
             
-            IInventory inventory = (IInventory)payTileEntity.TileEntity;
-            
-            openInventory(payTileEntity.TileEntity);
-            
-            for(int k = 0; k < payTileEntity.Items.size(); k++)
-            {
-                SearchItem payItem = payTileEntity.Items.get(k);
-                ItemStack invItemStack = inventory.getStackInSlot(payItem.SlotIndex);
-                
-                if(invItemStack == null)
-                {
-                    invItemStack = payItemStack.copy();
-                    
-                    ItemHelper.setStackQuantity(invItemStack, payItem.Quantity);
-                    
-                    inventory.setInventorySlotContents(payItem.SlotIndex, invItemStack);
-                }
-                else if(!isPayVessel && invItemStack.getItem() instanceof ItemPotterySmallVessel)
-                    SmallVesselHelper.increaseItemStackQuantity(payItem.Quantity, payItemStack, invItemStack);
-                else
-                    ItemHelper.increaseStackQuantity(invItemStack, payItem.Quantity);
-            }
-            
-            closeInventory(payTileEntity.TileEntity, world);
+            world.markBlockForUpdate(payTileEntity.TileEntity.xCoord, payTileEntity.TileEntity.yCoord, payTileEntity.TileEntity.zCoord);
         }
     }
     
@@ -132,7 +110,6 @@ public class TradeHelper
             ingotPile.validate();
     
             world.addBlockEvent(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord, TFCBlocks.IngotPile, 0, 0);
-            world.markBlockForUpdate(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord);
             
             totalQuantity -= currentQuantity;
         }
@@ -155,25 +132,76 @@ public class TradeHelper
         }
     }
     
-    private static void openInventory(TileEntity tileEntity)
+    public static void confirmTradePays_Other(ItemStack payItemStack, SearchTileEntity payTileEntity, ArrayList<Point> containers, World world)
     {
-        IInventory inventory = (IInventory)tileEntity;
-        Class<?> cls = tileEntity.getClass();
+        boolean isPayVessel = payItemStack.getItem() instanceof ItemPotterySmallVessel;
+        boolean isLogPile = payTileEntity.TileEntity instanceof TELogPile;
+        IInventory inventory = (IInventory)payTileEntity.TileEntity;
         
-        if(cls == TELogPile.class)
+        if(isLogPile)
             inventory.openInventory();
-    }
-    
-    private static void closeInventory(TileEntity tileEntity, World world)
-    {
-        IInventory inventory = (IInventory)tileEntity;
-        Class<?> cls = tileEntity.getClass();
-
-        if(cls == TELogPile.class)
+        
+        for(int k = 0; k < payTileEntity.Items.size(); k++)
         {
-            inventory.closeInventory();
+            SearchItem payItem = payTileEntity.Items.get(k);
+            
+            if(isLogPile && payItem.SlotIndex < 0)
+            {
+                confirmTradePays_NewLogPile(payItemStack, payTileEntity, payItem, containers, world);
+                continue;
+            }
+            
+            ItemStack invItemStack = inventory.getStackInSlot(payItem.SlotIndex);
+            
+            if(invItemStack == null)
+            {
+                invItemStack = payItemStack.copy();
+                
+                ItemHelper.setStackQuantity(invItemStack, payItem.Quantity);
+                
+                inventory.setInventorySlotContents(payItem.SlotIndex, invItemStack);
+            }
+            else if(!isPayVessel && invItemStack.getItem() instanceof ItemPotterySmallVessel)
+                SmallVesselHelper.increaseItemStackQuantity(payItem.Quantity, payItemStack, invItemStack);
+            else
+                ItemHelper.increaseStackQuantity(invItemStack, payItem.Quantity);
         }
         
-        world.markBlockForUpdate(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+        if(isLogPile)
+            inventory.closeInventory();
+    }
+    
+    private static void confirmTradePays_NewLogPile(
+            ItemStack payItemStack,
+            SearchTileEntity payTileEntity,
+            SearchItem payItem,
+            ArrayList<Point> containers,
+            World world
+            )
+    {
+        int x = payTileEntity.TileEntity.xCoord;
+        int y = payTileEntity.TileEntity.yCoord + 1;
+        int z = payTileEntity.TileEntity.zCoord;
+        
+        world.setBlock(x, y, z, TFCBlocks.LogPile, 0, 3);
+        
+        Item item = payItemStack.getItem();
+        
+        TELogPile logPile = (TELogPile)world.getTileEntity(x, y, z);
+        IInventory inventory = (IInventory)logPile;
+        int quantity = payItem.Quantity;
+        
+        for(int i = 0; i < inventory.getSizeInventory() && quantity > 0; i++)
+        {
+            int addQuantity = quantity < inventory.getInventoryStackLimit() ? quantity: inventory.getInventoryStackLimit();
+            
+            inventory.setInventorySlotContents(i, new ItemStack(item, addQuantity, payItemStack.getItemDamage()));
+            
+            quantity -= addQuantity;
+        }
+        
+        world.markBlockForUpdate(x, y, z);
+        
+        containers.add(new Point(x, y, z));
     }
 }
