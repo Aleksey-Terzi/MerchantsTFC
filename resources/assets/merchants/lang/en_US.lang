@@ -18,3 +18,9 @@ gui.Stall.NoGoods=Not enough goods in warehouse
 
 gui.Warehouse.Title=Warehouse
 gui.Warehouse.Sign=Sign
+
+gui.TrusselCore.Title=Create Die for Trussel
+gui.TrusselCore.Name=Name
+gui.TrusselCore.Die=Die
+gui.TrusselCore.Create=Create
+gui.TrusselCore.Cancel=Cancel
