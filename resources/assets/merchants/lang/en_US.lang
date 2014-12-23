@@ -2,6 +2,7 @@ tile.Stall.name=Stall
 tile.Warehouse.name=Warehouse
 
 item.WarehouseBook.name=Warehouse Book
+item.Trussel.Oz=oz
 
 gui.Stall.Prices=Prices
 gui.Stall.Goods=Goods
@@ -19,8 +20,14 @@ gui.Stall.NoGoods=Not enough goods in warehouse
 gui.Warehouse.Title=Warehouse
 gui.Warehouse.Sign=Sign
 
-gui.TrusselCore.Title=Create Die for Trussel
-gui.TrusselCore.Name=Name
-gui.TrusselCore.Die=Die
-gui.TrusselCore.Create=Create
-gui.TrusselCore.Cancel=Cancel
+gui.TrusselCreate.Title=Create Die for Trussel
+gui.TrusselCreate.Name=Name
+gui.TrusselCreate.Die=Die
+gui.TrusselCreate.Create=Create
+gui.TrusselCreate.Cancel=Cancel
+gui.TrusselCreate.Weight=Weight
+gui.TrusselCreate.WeightChoice1=50oz (1)
+gui.TrusselCreate.WeightChoice2=2.5oz (20)
+gui.TrusselCreate.WeightChoice3=1oz (50)
+gui.TrusselCreate.WeightChoice4=0.5oz (100)
+gui.TrusselCreate.WeightChoice5=0.25oz (200)
