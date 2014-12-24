@@ -65,7 +65,10 @@ public class ItemTrussel extends ItemTerra
         if(!stack.hasTagCompound())
             stack.setTagCompound(new NBTTagCompound());
         
-        player.openGui(MerchantsMod.instance, GuiHandler.GuiTrusselCreate, player.worldObj, 0, 0, 0);
+        if(stack.getTagCompound().hasKey(TagName_Key))
+            player.openGui(MerchantsMod.instance, GuiHandler.GuiTrussel, player.worldObj, 0, 0, 0);
+        else
+            player.openGui(MerchantsMod.instance, GuiHandler.GuiTrusselCreate, player.worldObj, 0, 0, 0);
 
         return stack;
     }
@@ -103,5 +106,34 @@ public class ItemTrussel extends ItemTerra
             arraylist.add(EnumChatFormatting.GOLD + "Key: " + tag.getString(TagName_Key));
             arraylist.add(EnumChatFormatting.GOLD + tag.getString(TagName_Name) + " " + EnumChatFormatting.GRAY + weightText);
         }
+    }
+    
+    public static String getTrusselName(ItemStack itemStack)
+    {
+        return itemStack.getTagCompound().getString(TagName_Name);
+    }
+    
+    public static int getTrusselWeight(ItemStack itemStack)
+    {
+        return itemStack.getTagCompound().getInteger(TagName_Weight);
+    }
+
+    public static byte[] getTrusselDie(ItemStack itemStack)
+    {
+        return itemStack.getTagCompound().getByteArray(TagName_Die);
+    }
+
+    public static void copyDie(ItemStack srcStack, ItemStack dstStack)
+    {
+        if(!dstStack.hasTagCompound())
+            dstStack.setTagCompound(new NBTTagCompound());
+        
+        NBTTagCompound srcTag = srcStack.getTagCompound();
+        NBTTagCompound dstTag = dstStack.getTagCompound();
+        
+        dstTag.setString(TagName_Key, srcTag.getString(TagName_Key));
+        dstTag.setString(TagName_Name, srcTag.getString(TagName_Name));
+        dstTag.setInteger(TagName_Weight, srcTag.getInteger(TagName_Weight));
+        dstTag.setByteArray(TagName_Die, srcTag.getByteArray(TagName_Die));
     }
 }

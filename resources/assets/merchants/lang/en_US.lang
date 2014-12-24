@@ -31,3 +31,11 @@ gui.TrusselCreate.WeightChoice2=2.5oz (20)
 gui.TrusselCreate.WeightChoice3=1oz (50)
 gui.TrusselCreate.WeightChoice4=0.5oz (100)
 gui.TrusselCreate.WeightChoice5=0.25oz (200)
+
+gui.Trussel.Title=Trussel
+gui.Trussel.Name=Name
+gui.Trussel.Weight=Weight
+gui.Trussel.Die=Die
+gui.Trussel.Create=Copy
+gui.Trussel.Oz=oz
+gui.Trussel.Copy=Copy

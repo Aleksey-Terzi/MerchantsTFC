@@ -17,6 +17,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import com.aleksey.merchants.GUI.Buttons.GuiCheckButton;
+import com.aleksey.merchants.Helpers.CoinHelper;
 import com.aleksey.merchants.Items.ItemTrussel;
 import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.TFC_Core;
@@ -50,7 +51,6 @@ public class GuiTrusselCreate extends GuiScreen
     
     private static final int _topLeftDiePixelX = 35;
     private static final int _topLeftDiePixelY = 38;
-    private static final int _dieStride = 12;
     
     private static final int _weightBtnTextureY = 7;
     private static final int _weightBtnFalseTextureX = 178;
@@ -125,13 +125,13 @@ public class GuiTrusselCreate extends GuiScreen
         int index = 0;
         int y = h + _topLeftDiePixelY;
         
-        _dieButtons = new GuiCheckButton[_dieStride * _dieStride];
+        _dieButtons = new GuiCheckButton[CoinHelper.DieStride * CoinHelper.DieStride];
                 
-        for(int row = 0; row < _dieStride; row++)
+        for(int row = 0; row < CoinHelper.DieStride; row++)
         {
             int x = w + _topLeftDiePixelX;
             
-            for(int col = 0; col < _dieStride; col++)
+            for(int col = 0; col < CoinHelper.DieStride; col++)
             {
                 GuiCheckButton dieButton = new GuiCheckButton(_buttonId_dieButton + index, x, y, _diePixelSize, _diePixelSize, "", _diePixelSize, _dieTextureY, _dieNotSetTextureX, _dieSetTextureX, _texture);
                 
@@ -251,29 +251,12 @@ public class GuiTrusselCreate extends GuiScreen
     
     private byte[] getDieData()
     {
-        int dataLen = _dieButtons.length / 8;
-        
-        if((_dieButtons.length % 8) != 0)
-            dataLen++;
-        
-        byte[] data = new byte[dataLen];
-        int mask = 1;
+        boolean[] bits = new boolean[_dieButtons.length];
         
         for(int i = 0; i < _dieButtons.length; i++)
-        {
-            GuiCheckButton button = _dieButtons[i];
-            int dataIndex = i / 8;
-            byte dataByte = data[dataIndex];
-            int bitIndex = i % 8;
-            
-            if(bitIndex == 0)
-                dataByte = 0;
-            
-            if(button.getChecked())
-                dataByte |= (byte)(mask << bitIndex);
-        }
+            bits[i] = _dieButtons[i].getChecked();
         
-        return data;
+        return CoinHelper.packDie(bits);
     }
 
     @Override

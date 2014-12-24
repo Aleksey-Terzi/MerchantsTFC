@@ -5,8 +5,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 import com.aleksey.merchants.Containers.ContainerStall;
+import com.aleksey.merchants.Containers.ContainerTrussel;
 import com.aleksey.merchants.Containers.ContainerWarehouse;
 import com.aleksey.merchants.GUI.GuiStall;
+import com.aleksey.merchants.GUI.GuiTrussel;
 import com.aleksey.merchants.GUI.GuiTrusselCreate;
 import com.aleksey.merchants.GUI.GuiWarehouse;
 import com.aleksey.merchants.TileEntities.TileEntityStall;
@@ -20,6 +22,7 @@ public class GuiHandler implements IGuiHandler
     public static final int GuiBuyerStall = 1;
     public static final int GuiWarehouse = 2;
     public static final int GuiTrusselCreate = 3;
+    public static final int GuiTrussel = 4;
     
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) 
@@ -36,6 +39,8 @@ public class GuiHandler implements IGuiHandler
                 return new ContainerWarehouse(player.inventory, (TileEntityWarehouse)te, world, x, y, z);
             case GuiTrusselCreate:
                 return null;
+            case GuiTrussel:
+                return new ContainerTrussel(player.inventory, world, x, y, z);
             default:
                 return null;
         }
@@ -65,6 +70,8 @@ public class GuiHandler implements IGuiHandler
                 return new GuiWarehouse(player.inventory, (TileEntityWarehouse)te, world, x, y, z);
             case GuiTrusselCreate:
                 return new GuiTrusselCreate(player.inventory, world);
+            case GuiTrussel:
+                return new GuiTrussel(player.inventory, world, x, y, z);
             default:
                 return null;
         }

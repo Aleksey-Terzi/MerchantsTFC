@@ -3,6 +3,8 @@ package com.aleksey.merchants;
 import com.aleksey.merchants.Core.BlockList;
 import com.aleksey.merchants.Core.ItemList;
 import com.aleksey.merchants.Core.Recipes;
+import com.aleksey.merchants.Handlers.Network.DieCopyPacket;
+import com.bioxx.tfc.TerraFirmaCraft;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -41,6 +43,7 @@ public class MerchantsMod
     public void initialize(FMLInitializationEvent event)
     {
         //TerraFirmaCraft.packetPipeline.registerPacket(InitClientWorldPacket.class);
+        TerraFirmaCraft.packetPipeline.registerPacket(DieCopyPacket.class);
         
         //FMLCommonHandler.instance().bus().register(new PlayerTracker());
         
