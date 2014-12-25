@@ -7,6 +7,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 
+import com.aleksey.merchants.Core.ItemList;
+import com.aleksey.merchants.Core.WarehouseBookInfo;
 import com.bioxx.tfc.TileEntities.NetworkTileEntity;
 
 import cpw.mods.fml.relauncher.Side;
@@ -17,10 +19,16 @@ public class TileEntityAnvilDie extends NetworkTileEntity implements IInventory
     private static final byte _actionId_Mint = 0;
     
     private ItemStack[] _storage;
+    private int _metalWeight;//100 = 1oz
+    
+    public int getMetalWeight()
+    {
+        return _metalWeight;
+    }
     
     public TileEntityAnvilDie()
     {
-        _storage = new ItemStack[4];
+        _storage = new ItemStack[5];
     }
     
     @Override
@@ -128,6 +136,8 @@ public class TileEntityAnvilDie extends NetworkTileEntity implements IInventory
     {
         super.writeToNBT(nbt);
         
+        nbt.setInteger("MetalWeight", _metalWeight);
+
         NBTTagList itemList = new NBTTagList();
 
         for (int i = 0; i < _storage.length; i++)
@@ -151,6 +161,8 @@ public class TileEntityAnvilDie extends NetworkTileEntity implements IInventory
     {
         super.readFromNBT(nbt);
         
+        _metalWeight = nbt.getInteger("MetalWeight");
+
         NBTTagList itemList = nbt.getTagList("Items", 10);
 
         for (int i = 0; i < itemList.tagCount(); i++)
@@ -166,12 +178,15 @@ public class TileEntityAnvilDie extends NetworkTileEntity implements IInventory
     @Override
     public void handleInitPacket(NBTTagCompound nbt)
     {
+        _metalWeight = nbt.hasKey("MetalWeight") ? nbt.getInteger("MetalWeight"): 0;
+        
         this.worldObj.func_147479_m(xCoord, yCoord, zCoord);
     }
 
     @Override
     public void createInitNBT(NBTTagCompound nbt)
     {
+        nbt.setInteger("MetalWeight", _metalWeight);
     }
 
     @Override

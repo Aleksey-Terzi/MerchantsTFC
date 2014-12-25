@@ -79,7 +79,7 @@ public class GuiTrussel extends GuiContainerTFC
         int weightIndex = ItemTrussel.getTrusselWeight(itemStack);
         
         _name = ItemTrussel.getTrusselName(itemStack);
-        _weight = CoinHelper.getOz(weightIndex) + StatCollector.translateToLocal("gui.Trussel.Oz") + " (" + String.valueOf(weightIndex) + ")";
+        _weight = CoinHelper.getWeightText(weightIndex);
         _die = CoinHelper.unpackDie(ItemTrussel.getTrusselDie(itemStack));
     }
 

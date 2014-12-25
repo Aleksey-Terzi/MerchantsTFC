@@ -4,15 +4,18 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-public class SlotTrusselCopy extends Slot
+import com.aleksey.merchants.Items.ItemFlan;
+
+public class SlotFlan extends Slot
 {
-    public SlotTrusselCopy(IInventory iinventory, int slotIndex, int x, int y)
+    public SlotFlan(IInventory iinventory, int slotIndex, int x, int y)
     {
         super(iinventory, slotIndex, x, y);
     }
+
     @Override
     public boolean isItemValid(ItemStack itemstack)
     {       
-        return false;
+        return itemstack.getItem() instanceof ItemFlan;
     }
 }

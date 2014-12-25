@@ -101,7 +101,7 @@ public class ItemTrussel extends ItemTerra
         if(tag != null && tag.hasKey(TagName_Key))
         {
             int weight = tag.getInteger(TagName_Weight);
-            String weightText = CoinHelper.getOz(weight) + StatCollector.translateToLocal("item.Trussel.Oz") + " (" + String.valueOf(weight) + ")";
+            String weightText = CoinHelper.getWeightText(weight);
             
             arraylist.add(EnumChatFormatting.GOLD + "Key: " + tag.getString(TagName_Key));
             arraylist.add(EnumChatFormatting.GOLD + tag.getString(TagName_Name) + " " + EnumChatFormatting.GRAY + weightText);

@@ -6,12 +6,12 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import com.aleksey.merchants.Containers.Slots.SlotTrussel;
-import com.aleksey.merchants.Containers.Slots.SlotTrusselCopy;
+import com.aleksey.merchants.Containers.Slots.SlotTrusselWithoutDie;
 import com.aleksey.merchants.GUI.GuiTrussel;
 import com.aleksey.merchants.Inventories.TrusselInventory;
 import com.aleksey.merchants.Items.ItemTrussel;
 import com.bioxx.tfc.Containers.ContainerTFC;
+import com.bioxx.tfc.Containers.Slots.SlotOutputOnly;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
 
 public class ContainerTrussel extends ContainerTFC
@@ -26,8 +26,8 @@ public class ContainerTrussel extends ContainerTFC
         _world = world;
         _inventory = new TrusselInventory();
 
-        addSlotToContainer(new SlotTrussel(_inventory, 0, GuiTrussel.SrcSlotX, GuiTrussel.SlotY));
-        addSlotToContainer(new SlotTrusselCopy(_inventory, 1, GuiTrussel.DstSlotX, GuiTrussel.SlotY));
+        addSlotToContainer(new SlotTrusselWithoutDie(_inventory, 0, GuiTrussel.SrcSlotX, GuiTrussel.SlotY));
+        addSlotToContainer(new SlotOutputOnly(_inventory, 1, GuiTrussel.DstSlotX, GuiTrussel.SlotY));
 
         PlayerInventory.buildInventoryLayout(this, inventoryplayer, 8, GuiTrussel.WindowHeight - 1 + 5, true, true);
     }

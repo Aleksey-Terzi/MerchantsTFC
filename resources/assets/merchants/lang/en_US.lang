@@ -1,8 +1,9 @@
+Oz=oz
+
 tile.Stall.name=Stall
 tile.Warehouse.name=Warehouse
 
 item.WarehouseBook.name=Warehouse Book
-item.Trussel.Oz=oz
 
 gui.Stall.Prices=Prices
 gui.Stall.Goods=Goods
@@ -37,5 +38,7 @@ gui.Trussel.Name=Name
 gui.Trussel.Weight=Weight
 gui.Trussel.Die=Die
 gui.Trussel.Create=Copy
-gui.Trussel.Oz=oz
 gui.Trussel.Copy=Copy
+
+gui.AnvilDie.Title=Anvil Die
+gui.AnvilDie.Mint=Mint

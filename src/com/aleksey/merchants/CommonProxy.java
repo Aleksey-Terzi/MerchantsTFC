@@ -1,6 +1,7 @@
 package com.aleksey.merchants;
 
 import com.aleksey.merchants.Handlers.GuiHandler;
+import com.aleksey.merchants.TileEntities.TileEntityAnvilDie;
 import com.aleksey.merchants.TileEntities.TileEntityStall;
 import com.aleksey.merchants.TileEntities.TileEntityWarehouse;
 
@@ -17,6 +18,7 @@ public class CommonProxy
     {
         GameRegistry.registerTileEntity(TileEntityStall.class, "TileEntityStall");
         GameRegistry.registerTileEntity(TileEntityWarehouse.class, "TileEntityWarehouse");
+        GameRegistry.registerTileEntity(TileEntityAnvilDie.class, "TileEntityAnvilDie");
     }
     
     public void registerGuiHandler()

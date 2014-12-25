@@ -1,6 +1,7 @@
 package com.aleksey.merchants;
 
 import com.aleksey.merchants.Core.BlockList;
+import com.aleksey.merchants.Render.Blocks.RenderAnvilDie;
 import com.aleksey.merchants.Render.Blocks.RenderStall;
 import com.aleksey.merchants.Render.Blocks.RenderWarehouse;
 
@@ -12,6 +13,7 @@ public class ClientProxy extends CommonProxy
     {
         RenderingRegistry.registerBlockHandler(BlockList.StallRenderId = RenderingRegistry.getNextAvailableRenderId(), new RenderStall());
         RenderingRegistry.registerBlockHandler(BlockList.WarehouseRenderId = RenderingRegistry.getNextAvailableRenderId(), new RenderWarehouse());
+        RenderingRegistry.registerBlockHandler(BlockList.AnvilDieRenderId = RenderingRegistry.getNextAvailableRenderId(), new RenderAnvilDie());
     }
 
     public boolean isRemote()
