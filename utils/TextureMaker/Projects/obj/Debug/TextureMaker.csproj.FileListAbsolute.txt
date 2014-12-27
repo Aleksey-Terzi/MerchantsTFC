@@ -1,7 +1,0 @@
-D:\Projects\InternalProjects\Minecraft\merchants\utils\TextureMaker\Projects\TextureMaker\bin\Debug\TextureMaker.exe.config
-D:\Projects\InternalProjects\Minecraft\merchants\utils\TextureMaker\Projects\bin\Debug\TextureMaker.exe.config
-D:\Projects\InternalProjects\Minecraft\merchants\utils\TextureMaker\Projects\bin\Debug\TextureMaker.exe
-D:\Projects\InternalProjects\Minecraft\merchants\utils\TextureMaker\Projects\bin\Debug\TextureMaker.pdb
-D:\Projects\InternalProjects\Minecraft\merchants\utils\TextureMaker\Projects\obj\Debug\TextureMaker.csprojResolveAssemblyReference.cache
-D:\Projects\InternalProjects\Minecraft\merchants\utils\TextureMaker\Projects\obj\Debug\TextureMaker.exe
-D:\Projects\InternalProjects\Minecraft\merchants\utils\TextureMaker\Projects\obj\Debug\TextureMaker.pdb

@@ -1,3 +1,7 @@
 .gradle
 build
 libs
+bin
+obj
+*.suo
+*.user
