@@ -76,11 +76,11 @@ public class GuiTrussel extends GuiContainerTFC
         
         ItemStack itemStack = _player.inventory.getCurrentItem();
         
-        int weightIndex = ItemTrussel.getTrusselWeight(itemStack);
+        int weightIndex = CoinHelper.getCoinWeight(itemStack);
         
-        _name = ItemTrussel.getTrusselName(itemStack);
+        _name = CoinHelper.getCoinName(itemStack);
         _weight = CoinHelper.getWeightText(weightIndex);
-        _die = CoinHelper.unpackDie(ItemTrussel.getTrusselDie(itemStack));
+        _die = CoinHelper.unpackDie(CoinHelper.getCoinDie(itemStack));
     }
 
     @Override

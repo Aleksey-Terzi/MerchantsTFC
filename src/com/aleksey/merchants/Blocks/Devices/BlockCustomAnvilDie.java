@@ -6,8 +6,6 @@ import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
@@ -18,9 +16,10 @@ import net.minecraft.world.World;
 
 import com.aleksey.merchants.MerchantsMod;
 import com.aleksey.merchants.Core.BlockList;
+import com.aleksey.merchants.Core.DieInfo;
 import com.aleksey.merchants.Handlers.GuiHandler;
 import com.aleksey.merchants.TileEntities.TileEntityAnvilDie;
-import com.aleksey.merchants.TileEntities.TileEntityWarehouse;
+import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
 import com.bioxx.tfc.Core.TFCTabs;
@@ -30,15 +29,19 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockCustomAnvilDie extends BlockTerraContainer
 {
+    private DieInfo _info;
+    
     @SideOnly(Side.CLIENT)
     private IIcon _topIcon;
     
     @SideOnly(Side.CLIENT)
     private IIcon _sideIcon;
     
-    public BlockCustomAnvilDie()
+    public BlockCustomAnvilDie(DieInfo info)
     {
         super(Material.iron);
+        
+        _info = info;
         
         this.setCreativeTab(TFCTabs.TFCDevices);
         this.setBlockBounds(0, 0, 0, 1, 1, 1);
@@ -51,8 +54,8 @@ public class BlockCustomAnvilDie extends BlockTerraContainer
     @Override
     public void registerBlockIcons(IIconRegister register)
     {
-        _topIcon = register.registerIcon("merchants:AnvilDieTop");
-        _sideIcon = register.registerIcon("merchants:AnvilDieSide");
+        _topIcon = register.registerIcon("merchants:anvildies/AnvilDieTop" + _info.DieName);
+        _sideIcon = register.registerIcon("merchants:anvildies/AnvilDieSide" + _info.DieName);
     }
 
     @Override
@@ -64,7 +67,7 @@ public class BlockCustomAnvilDie extends BlockTerraContainer
     @Override
     public int damageDropped(int meta)
     {
-        return 0;
+        return meta;
     }
 
     @Override
@@ -158,12 +161,22 @@ public class BlockCustomAnvilDie extends BlockTerraContainer
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int metadata)
     {
-        EntityItem ei = new EntityItem(world, x + 0.5, y + 0.5, z + 0.5, new ItemStack(TFCItems.Logs, 1, 0));
+        EntityItem ei = new EntityItem(world, x + 0.5, y + 0.5, z + 0.5, new ItemStack(TFCItems.Logs, 1, getLogsMetadata(metadata)));
         ei.motionX = 0;
         ei.motionY = 0;
         ei.motionZ = 0;
         world.spawnEntityInWorld(ei);
 
         super.breakBlock(world, x, y, z, block, metadata);
+    }
+    
+    protected int getLogsMetadata(int metadata)
+    {
+        return metadata;
+    }
+    
+    public Block getLogBlock()
+    {
+        return TFCBlocks.WoodVert;
     }
 }

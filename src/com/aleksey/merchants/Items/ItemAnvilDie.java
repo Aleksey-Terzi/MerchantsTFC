@@ -4,10 +4,14 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
 import com.aleksey.merchants.Core.BlockList;
+import com.aleksey.merchants.Core.Constants;
+import com.aleksey.merchants.Core.DieInfo;
 import com.aleksey.merchants.TileEntities.TileEntityAnvilDie;
+import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Items.ItemTerra;
@@ -25,13 +29,24 @@ public class ItemAnvilDie extends ItemTerra
         
         setMaxDamage(0);
         setCreativeTab(TFCTabs.TFCMisc);
+        setHasSubtypes(true);
+        
+        MetaNames = new String[Constants.Dies.length];
+        
+        for(int i = 0; i < Constants.Dies.length; i++)
+            MetaNames[i] = Constants.Dies[i].DieName;
     }
     
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister registerer)
     {
-        this.itemIcon = registerer.registerIcon("merchants:AnvilDie");
+        MetaIcons = new IIcon[MetaNames.length];
+
+        for(int i = 0; i < MetaNames.length; i++)
+            MetaIcons[i] = registerer.registerIcon("merchants:anvildies/AnvilDie" + MetaNames[i]);
+        
+        this.itemIcon = MetaIcons[0];
     }
     
     @Override
@@ -63,7 +78,14 @@ public class ItemAnvilDie extends ItemTerra
         if(block != TFCBlocks.WoodVert && block != TFCBlocks.WoodVert2)
             return false;
         
-        world.setBlock( x, y, z, BlockList.AnvilDie, 0, 0x2);
+        int meta = world.getBlockMetadata(x, y, z);
+        
+        int anvilDieIndex = itemstack.getItemDamage() * 2;
+        
+        if(block == TFCBlocks.WoodVert2)
+            anvilDieIndex++;
+        
+        world.setBlock( x, y, z, BlockList.AnvilDies[anvilDieIndex], meta, 0x2);
         
         if(world.isRemote)
             world.markBlockForUpdate(x, y, z);

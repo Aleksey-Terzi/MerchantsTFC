@@ -7,6 +7,7 @@ import net.minecraft.world.IBlockAccess;
 
 import org.lwjgl.opengl.GL11;
 
+import com.aleksey.merchants.Blocks.Devices.BlockCustomAnvilDie;
 import com.bioxx.tfc.TFCBlocks;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
@@ -24,7 +25,7 @@ public class RenderAnvilDie implements ISimpleBlockRenderingHandler
     public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer)
     {
         setBound(_logBound, renderer);
-        renderInvBlock(TFCBlocks.LogNatural, 0, renderer);
+        renderInvBlock(((BlockCustomAnvilDie)block).getLogBlock(), metadata, renderer);
         
         setBound(_anvilDieBound, renderer);
         renderInvBlock(block, 0, renderer);
@@ -34,7 +35,7 @@ public class RenderAnvilDie implements ISimpleBlockRenderingHandler
     public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer)
     {
         setBound(_logBound, renderer);
-        renderer.renderStandardBlock(TFCBlocks.LogNatural, x, y, z);
+        renderer.renderStandardBlock(((BlockCustomAnvilDie)block).getLogBlock(), x, y, z);
         
         setBound(_anvilDieBound, renderer);
         renderer.renderStandardBlock(block, x, y, z);

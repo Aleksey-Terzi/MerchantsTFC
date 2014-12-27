@@ -359,8 +359,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
             _storage[i] = null;
 
         this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-    }
-    
+    }    
     
     //Send action to client
     public void actionBuy(ItemStack itemStack)

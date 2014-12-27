@@ -209,16 +209,16 @@ public class GuiTrusselCreate extends GuiScreen
     private void createDie()
     {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setString(ItemTrussel.TagName_Key, createKey());
-        tag.setString(ItemTrussel.TagName_Name, _nameTextField.getText());
-        tag.setInteger(ItemTrussel.TagName_Weight, getSelectedWeight());
-        tag.setByteArray(ItemTrussel.TagName_Die, getDieData());
+        tag.setString(CoinHelper.TagName_Key, createKey());
+        tag.setString(CoinHelper.TagName_Name, _nameTextField.getText());
+        tag.setInteger(CoinHelper.TagName_Weight, getSelectedWeight());
+        tag.setByteArray(CoinHelper.TagName_Die, getDieData());
 
         ItemNBTPacket packet = new ItemNBTPacket(tag);
-        packet.addAcceptedTag(ItemTrussel.TagName_Key);
-        packet.addAcceptedTag(ItemTrussel.TagName_Name);
-        packet.addAcceptedTag(ItemTrussel.TagName_Weight);
-        packet.addAcceptedTag(ItemTrussel.TagName_Die);
+        packet.addAcceptedTag(CoinHelper.TagName_Key);
+        packet.addAcceptedTag(CoinHelper.TagName_Name);
+        packet.addAcceptedTag(CoinHelper.TagName_Weight);
+        packet.addAcceptedTag(CoinHelper.TagName_Die);
 
         TerraFirmaCraft.packetPipeline.sendToServer(packet);
 

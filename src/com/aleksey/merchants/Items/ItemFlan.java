@@ -2,7 +2,10 @@ package com.aleksey.merchants.Items;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 
+import com.aleksey.merchants.Core.CoinInfo;
+import com.aleksey.merchants.Core.Constants;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.api.Enums.EnumSize;
@@ -19,13 +22,24 @@ public class ItemFlan extends ItemTerra
         
         setMaxDamage(0);
         setCreativeTab(TFCTabs.TFCMisc);
+        setHasSubtypes(true);
+        
+        MetaNames = new String[Constants.Coins.length];
+        
+        for(int i = 0; i < Constants.Coins.length; i++)
+            MetaNames[i] = Constants.Coins[i].CoinName;
     }
     
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister registerer)
     {
-        this.itemIcon = registerer.registerIcon("merchants:Flan");
+        MetaIcons = new IIcon[MetaNames.length];
+
+        for(int i = 0; i < MetaNames.length; i++)
+            MetaIcons[i] = registerer.registerIcon("merchants:flans/Flan" + MetaNames[i]);
+        
+        this.itemIcon = MetaIcons[0];
     }
     
     @Override

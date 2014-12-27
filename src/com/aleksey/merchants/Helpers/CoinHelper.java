@@ -1,11 +1,18 @@
 package com.aleksey.merchants.Helpers;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 
 public class CoinHelper
 {
+    public static final String TagName_Key = "Key";
+    public static final String TagName_Name = "Name";
+    public static final String TagName_Weight = "Weight";
+    public static final String TagName_Die = "Die";
+
     public static final int DieStride = 12;
-    public static final int MaxFlanWeight = 50 * 100;//100 = 1oz;
+    public static final int MaxFlanWeightInHundreds = 50 * 100;//100 = 1oz;
     
     public static double getWeightOz(int weightIndex)
     {
@@ -77,5 +84,34 @@ public class CoinHelper
         }
         
         return bits;
+    }
+    
+    public static String getCoinName(ItemStack itemStack)
+    {
+        return itemStack.getTagCompound().getString(TagName_Name);
+    }
+    
+    public static int getCoinWeight(ItemStack itemStack)
+    {
+        return itemStack.getTagCompound().getInteger(TagName_Weight);
+    }
+
+    public static byte[] getCoinDie(ItemStack itemStack)
+    {
+        return itemStack.getTagCompound().getByteArray(TagName_Die);
+    }
+
+    public static void copyDie(ItemStack srcStack, ItemStack dstStack)
+    {
+        if(!dstStack.hasTagCompound())
+            dstStack.setTagCompound(new NBTTagCompound());
+        
+        NBTTagCompound srcTag = srcStack.getTagCompound();
+        NBTTagCompound dstTag = dstStack.getTagCompound();
+        
+        dstTag.setString(TagName_Key, srcTag.getString(TagName_Key));
+        dstTag.setString(TagName_Name, srcTag.getString(TagName_Name));
+        dstTag.setInteger(TagName_Weight, srcTag.getInteger(TagName_Weight));
+        dstTag.setByteArray(TagName_Die, srcTag.getByteArray(TagName_Die));
     }
 }

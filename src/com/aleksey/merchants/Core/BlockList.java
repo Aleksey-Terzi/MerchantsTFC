@@ -3,6 +3,7 @@ package com.aleksey.merchants.Core;
 import net.minecraft.block.Block;
 
 import com.aleksey.merchants.Blocks.Devices.BlockCustomAnvilDie;
+import com.aleksey.merchants.Blocks.Devices.BlockCustomAnvilDie2;
 import com.aleksey.merchants.Blocks.Devices.BlockStall;
 import com.aleksey.merchants.Blocks.Devices.BlockWarehouse;
 import com.aleksey.merchants.ItemBlocks.ItemStall;
@@ -18,19 +19,33 @@ public class BlockList
     
     public static Block Stall;
     public static Block Warehouse;
-    public static Block AnvilDie;
+    public static Block[] AnvilDies;
     
     public static void registerBlocks()
     {
         GameRegistry.registerBlock(Stall, ItemStall.class, Stall.getUnlocalizedName().substring(5));
         GameRegistry.registerBlock(Warehouse, ItemWarehouse.class, Warehouse.getUnlocalizedName().substring(5));
-        GameRegistry.registerBlock(AnvilDie, null, AnvilDie.getUnlocalizedName().substring(5));
+        
+        for(int i = 0; i < AnvilDies.length; i++)
+            GameRegistry.registerBlock(AnvilDies[i], null, AnvilDies[i].getUnlocalizedName().substring(5));
     }
     
     public static void loadBlocks()
     {
         Stall = new BlockStall().setBlockName("Stall").setHardness(2);
         Warehouse = new BlockWarehouse().setBlockName("Warehouse").setHardness(2);
-        AnvilDie = new BlockCustomAnvilDie().setBlockName("AnvilDie");
+        
+        AnvilDies = new Block[Constants.Dies.length * 2];
+        
+        int index = 0;
+        
+        for(int i = 0; i < Constants.Dies.length; i++)
+        {
+            DieInfo info = Constants.Dies[i];
+            String name = "AnvilDie." + info.DieName;
+            
+            AnvilDies[index++] = new BlockCustomAnvilDie(info).setBlockName(name);
+            AnvilDies[index++] = new BlockCustomAnvilDie2(info).setBlockName(name + "2");
+        }
     }
 }

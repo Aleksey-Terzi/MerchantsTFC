@@ -3,14 +3,14 @@ package com.aleksey.merchants.GUI;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.aleksey.merchants.Containers.ContainerAnvilDie;
+import com.aleksey.merchants.Core.CoinInfo;
+import com.aleksey.merchants.Core.Constants;
 import com.aleksey.merchants.Helpers.CoinHelper;
-import com.aleksey.merchants.Items.ItemTrussel;
 import com.aleksey.merchants.TileEntities.TileEntityAnvilDie;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
 import com.bioxx.tfc.GUI.GuiContainerTFC;
@@ -36,9 +36,6 @@ public class GuiAnvilDie extends GuiContainerTFC
 
     private static final int _titleX = 0;
     private static final int _titleY = 4;
-    private static final int _trusselInfoX = 105;
-    private static final int _trusselInfoY = 84;
-    private static final int _trusselInfoWidth = 68;
     private static final int _mintButtonX = 28;
     private static final int _mintButtonY = 62;
     
@@ -93,13 +90,14 @@ public class GuiAnvilDie extends GuiContainerTFC
         if(x < _barX || x > _barX + _barWidth || y < _barY || y > _barY + _barHeight)
             return;
         
-        int metalWeight = _tileEntity.getMetalWeight();
+        int metalWeight = _tileEntity.getMetalWeightInHundreds();
         
         if(metalWeight == 0)
             return;
         
         double metalWeightInOz = (double)metalWeight / 100.0;
-        String toolTip = String.valueOf(metalWeightInOz);
+        CoinInfo coinInfo = Constants.Coins[_tileEntity.getMetalMeta()];
+        String toolTip = StatCollector.translateToLocal("metal." + coinInfo.CoinName) + ": " + String.valueOf(metalWeightInOz) + StatCollector.translateToLocal("Oz");
 
         drawTooltip(x, y, toolTip);
     }
@@ -119,44 +117,26 @@ public class GuiAnvilDie extends GuiContainerTFC
 
         drawCenteredString(StatCollector.translateToLocal("gui.AnvilDie.Title"), w + _titleX, h + _titleY, WindowWidth, _colorDefaultText);
 
-        drawTrusselInfo(w, h);
-
         PlayerInventory.drawInventory(this, width, height, ySize - PlayerInventory.invYSize);
+        
+        _mintButton.enabled = _tileEntity.canMint();
     }
     
     private void drawBar(int w, int h)
     {
-        int metalWeight = _tileEntity.getMetalWeight();
+        int metalWeight = _tileEntity.getMetalWeightInHundreds();
         
         if(metalWeight == 0)
             return;
         
-        int barHeight = _barHeight * metalWeight / CoinHelper.MaxFlanWeight;
-        int y = h + _barY - (_barHeight - barHeight);
+        int barHeight = _barHeight * metalWeight / CoinHelper.MaxFlanWeightInHundreds;
+        
+        if(barHeight == 0)
+            barHeight = 1;
+        
+        int y = h + _barY + (_barHeight - barHeight);
         
         drawTexturedModalRect(w + _barX, y, _barTextureX, _barTextureY, _barWidth, barHeight);
-    }
-    
-    private void drawTrusselInfo(int w, int h)
-    {
-        ItemStack itemStack = _tileEntity.getStackInSlot(1);
-        
-        if(itemStack == null)
-        {
-            _mintButton.enabled = false;
-            return;
-        }
-        
-        String name = ItemTrussel.getTrusselName(itemStack);
-        String weight = CoinHelper.getWeightText(ItemTrussel.getTrusselWeight(itemStack));
-        
-        int x = w + _trusselInfoX;
-        int y = h + _trusselInfoY;
-        
-        drawCenteredString(name, x, y, _trusselInfoWidth, _colorDefaultText);
-        drawCenteredString(weight, x, y + this.fontRendererObj.FONT_HEIGHT, _trusselInfoWidth, _colorDefaultText);
-        
-        _mintButton.enabled = true;
     }
 
     private void drawCenteredString(String s, int x, int y, int columnWidth, int color)

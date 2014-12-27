@@ -8,8 +8,8 @@ import net.minecraft.world.World;
 
 import com.aleksey.merchants.Containers.Slots.SlotTrusselWithoutDie;
 import com.aleksey.merchants.GUI.GuiTrussel;
+import com.aleksey.merchants.Helpers.CoinHelper;
 import com.aleksey.merchants.Inventories.TrusselInventory;
-import com.aleksey.merchants.Items.ItemTrussel;
 import com.bioxx.tfc.Containers.ContainerTFC;
 import com.bioxx.tfc.Containers.Slots.SlotOutputOnly;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
@@ -93,7 +93,7 @@ public class ContainerTrussel extends ContainerTFC
         if(itemStack1 == null || itemStack1.stackSize == 0 || itemStack2 != null)
             return false;
         
-        ItemTrussel.copyDie(_inventoryplayer.getCurrentItem(), itemStack1);
+        CoinHelper.copyDie(_inventoryplayer.getCurrentItem(), itemStack1);
         
         _inventory.setInventorySlotContents(0, null);
         _inventory.setInventorySlotContents(1, itemStack1);
