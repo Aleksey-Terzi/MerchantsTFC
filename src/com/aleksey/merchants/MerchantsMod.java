@@ -1,11 +1,17 @@
 package com.aleksey.merchants;
 
+import net.minecraftforge.common.MinecraftForge;
+
 import com.aleksey.merchants.Core.BlockList;
 import com.aleksey.merchants.Core.ItemList;
 import com.aleksey.merchants.Core.Recipes;
+import com.aleksey.merchants.Core.Player.PlayerTracker;
+import com.aleksey.merchants.Handlers.ChunkEventHandler;
 import com.aleksey.merchants.Handlers.Network.DieCopyPacket;
+import com.aleksey.merchants.Handlers.Network.InitClientWorldPacket;
 import com.bioxx.tfc.TerraFirmaCraft;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -14,7 +20,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid="MerchantsTFC", name="Merchants", version="1.0.16", dependencies="after:TerraFirmaCraft")
+@Mod(modid="MerchantsTFC", name="Merchants", version="1.0.22", dependencies="after:TerraFirmaCraft")
 public class MerchantsMod
 {
     @Instance("MerchantsTFC")
@@ -31,7 +37,7 @@ public class MerchantsMod
         BlockList.loadBlocks();
         BlockList.registerBlocks();
 
-        //proxy.registerTickHandler();
+        proxy.registerTickHandler();
         proxy.registerTileEntities();
                 
         ItemList.Setup();
@@ -42,13 +48,13 @@ public class MerchantsMod
     @EventHandler
     public void initialize(FMLInitializationEvent event)
     {
-        //TerraFirmaCraft.packetPipeline.registerPacket(InitClientWorldPacket.class);
+        TerraFirmaCraft.packetPipeline.registerPacket(InitClientWorldPacket.class);
         TerraFirmaCraft.packetPipeline.registerPacket(DieCopyPacket.class);
         
-        //FMLCommonHandler.instance().bus().register(new PlayerTracker());
+        FMLCommonHandler.instance().bus().register(new PlayerTracker());
         
         // Register the Chunk Load/Save Handler
-        //MinecraftForge.EVENT_BUS.register(new ChunkEventHandler());
+        MinecraftForge.EVENT_BUS.register(new ChunkEventHandler());
         
         proxy.registerRenderInformation();
         

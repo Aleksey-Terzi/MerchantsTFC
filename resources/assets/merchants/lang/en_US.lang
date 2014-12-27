@@ -135,3 +135,7 @@ gui.Trussel.Copy=Copy
 
 gui.AnvilDie.Title=Anvil Die
 gui.AnvilDie.Mint=Mint
+
+gui.plans.trussel=Trussel
+gui.plans.anvildie=Anvil Die
+gui.plans.flan=Flan

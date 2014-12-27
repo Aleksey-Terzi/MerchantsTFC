@@ -1,5 +1,7 @@
 package com.aleksey.merchants.Core;
 
+import com.bioxx.tfc.api.Crafting.AnvilReq;
+
 public class Constants
 {
     private static final int _whiteColor = 0xffffff;
@@ -42,7 +44,7 @@ public class Constants
         new DieInfo("Nickel", "item.Nickel Ingot", "item.Nickel Double Ingot", 4),
         new DieInfo("Steel", "item.Steel Ingot", "item.Steel Double Ingot", 4),
         new DieInfo("BlackSteel", "item.Black Steel Ingot", "item.Black Steel Double Ingot", 5),
-        new DieInfo("BlueSteel", "item.Black Steel Ingot", "item.Black Steel Double Ingot", 6),
-        new DieInfo("RedSteel", "item.Black Steel Ingot", "item.Black Steel Double Ingot", 6),
+        new DieInfo("BlueSteel", "item.Blue Steel Ingot", "item.Blue Steel Double Ingot", 6),
+        new DieInfo("RedSteel", "item.Red Steel Ingot", "item.Red Steel Double Ingot", 6),
     };
 }

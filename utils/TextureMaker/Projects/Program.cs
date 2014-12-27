@@ -25,13 +25,13 @@ namespace TextureMaker
             {
                 using (Image source = Image.FromFile(_metalFiles[i]))
                 {
-                    //Bitmap bmp = new Bitmap(32, 32);
-                    Bitmap bmp = new Bitmap(16, 16);
+                    Bitmap bmp = new Bitmap(32, 32);
+                    //Bitmap bmp = new Bitmap(16, 16);
 
                     using (Graphics g = Graphics.FromImage(bmp))
                     {
-                        //g.DrawImage(source, 0, 0, 32, 32);
-                        g.DrawImage(source, 0, 0, 16, 16);
+                        g.DrawImage(source, 0, 0, 32, 32);
+                        //g.DrawImage(source, 0, 0, 16, 16);
                     }
 
                     _metalImages[i] = bmp;
@@ -42,9 +42,9 @@ namespace TextureMaker
             //CreateImages("AnvilDie");
             //CreateImages("Flan");
             //CreateImages("Trussel");
-            //CreateImages("TrusselWithDie");
+            CreateImages("TrusselWithDie");
             //CreateImages("AnvilDieSide");
-            CreateImages("AnvilDieTop");
+            //CreateImages("AnvilDieTop");
         }
 
         static void CreateImages(string entityName)

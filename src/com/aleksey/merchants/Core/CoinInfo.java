@@ -1,5 +1,7 @@
 package com.aleksey.merchants.Core;
 
+import com.bioxx.tfc.api.Crafting.AnvilReq;
+
 public class CoinInfo
 {
     public String CoinName;
