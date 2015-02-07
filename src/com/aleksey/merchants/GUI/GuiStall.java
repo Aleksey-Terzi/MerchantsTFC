@@ -8,10 +8,13 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
+import com.aleksey.merchants.MerchantsMod;
 import com.aleksey.merchants.Containers.ContainerStall;
 import com.aleksey.merchants.Core.WarehouseBookInfo;
+import com.aleksey.merchants.GUI.Buttons.GuiLimitButton;
 import com.aleksey.merchants.Helpers.ItemHelper;
 import com.aleksey.merchants.TileEntities.TileEntityStall;
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
 import com.bioxx.tfc.GUI.GuiContainerTFC;
 
@@ -53,6 +56,7 @@ public class GuiStall extends GuiContainerTFC
     private static final int _quantityX = 81;
     
     private static final int _buttonId_clearButton = 0;
+    private static final int _buttonId_firstLimitButton = 1;
     
     private static final int _colorDefaultText = 0x555555;
     private static final int _colorSuccessText = 0x00AA00;
@@ -62,6 +66,7 @@ public class GuiStall extends GuiContainerTFC
     private EntityPlayer _player;
     private boolean _isOwnerMode;
     private QuantityInfo[] _quantities;
+    private GuiLimitButton[] _limitButtons;
 
     public GuiStall(InventoryPlayer inventoryplayer, TileEntityStall stall, boolean isOwnerMode, World world, int x, int y, int z)
     {
@@ -77,18 +82,33 @@ public class GuiStall extends GuiContainerTFC
     {
         super.initGui();
         
-        if(_isOwnerMode)
-            buttonList.add(new GuiButton(_buttonId_clearButton, guiLeft + _clearButtonX, guiTop + _clearButtonY, 50, 20, StatCollector.translateToLocal("gui.Stall.Clear")));
+        if(!_isOwnerMode)
+            return;
+        
+        buttonList.add(new GuiButton(_buttonId_clearButton, guiLeft + _clearButtonX, guiTop + _clearButtonY, 50, 20, StatCollector.translateToLocal("gui.Stall.Clear")));
+        
+        int y = guiTop + TopSlotY;
+        
+        _limitButtons = new GuiLimitButton[_stall.GoodsSlotIndexes.length];
+        
+        for(int i = 0; i < _limitButtons.length; i++)
+        {
+            buttonList.add(_limitButtons[i] = new GuiLimitButton(_buttonId_firstLimitButton + i, guiLeft + _quantityX, y));
+            
+            y += SlotSize;
+        }
     }
 
     @Override
     protected void actionPerformed(GuiButton guibutton)
     {
-        switch(guibutton.id)
+        if(guibutton.id == _buttonId_clearButton)
         {
-            case  _buttonId_clearButton:
-                _stall.actionClearPrices();
-                break;
+            _stall.actionClearPrices();
+        }
+        else if(guibutton.id >= _buttonId_firstLimitButton)
+        {
+            _stall.actionSelectLimit(_stall.GoodsSlotIndexes[guibutton.id - _buttonId_firstLimitButton]);
         }
     }
     
@@ -99,6 +119,13 @@ public class GuiStall extends GuiContainerTFC
         
         if(info != null)
             drawTooltip(mouseX - this.guiLeft, mouseY - this.guiTop, info.ToolTip);
+        else
+        {
+            String limitTooltip = getLimitTooltip(mouseX, mouseY);
+            
+            if(limitTooltip != null)
+                drawTooltip(mouseX - this.guiLeft, mouseY - this.guiTop, limitTooltip);
+        }
     }
     
     private QuantityInfo getQuantityInfo(int mouseX, int mouseY)
@@ -119,7 +146,7 @@ public class GuiStall extends GuiContainerTFC
             if(mouseY < y)
                 return null;
             
-            if(mouseY < y + SlotSize)
+            if(mouseY < y + 7)
             {
                 QuantityInfo info = _quantities[i];
                 
@@ -137,6 +164,40 @@ public class GuiStall extends GuiContainerTFC
         return null;
     }
 
+    private String getLimitTooltip(int mouseX, int mouseY)
+    {
+        if(!_isOwnerMode)
+            return null;
+        
+        int w = (width - xSize) / 2;
+        int h = (height - ySize) / 2;
+        
+        if(mouseX < w + _quantityX)
+            return null;
+        
+        int y = h + TopSlotY;
+        
+        for(int i = 0; i < _limitButtons.length; i++)
+        {
+            if(mouseY < y)
+                return null;
+            
+            if(mouseY < y + 7)
+            {
+                int limit = _stall.getLimitByGoodSlotIndex(_stall.GoodsSlotIndexes[i]);
+                String limitText = limit > 0 ? String.valueOf(limit): StatCollector.translateToLocal("gui.Stall.NA");
+                
+                int textWidth = this.fontRendererObj.getStringWidth(limitText);
+                
+                return mouseX < w + _quantityX + textWidth ? StatCollector.translateToLocal("gui.Stall.Tooltip.LimitButton"): null;
+            }
+            
+            y += SlotSize;
+        }
+        
+        return null;
+    }
+    
     @Override
     protected void drawGuiContainerBackgroundLayer(float f, int mouseX, int mouseY)
     {
@@ -159,6 +220,17 @@ public class GuiStall extends GuiContainerTFC
         
         drawWarehouseText(w, h);
         drawQuantities(w, h);
+        
+        if(_isOwnerMode)
+        {
+            for(int i = 0; i < _stall.GoodsSlotIndexes.length; i++)
+            {
+                int limit = _stall.getLimitByGoodSlotIndex(_stall.GoodsSlotIndexes[i]);
+                String limitText = limit > 0 ? String.valueOf(limit): StatCollector.translateToLocal("gui.Stall.NA");
+                
+                _limitButtons[i].setText(limitText, this.fontRendererObj);
+            }
+        }
 
         PlayerInventory.drawInventory(this, width, height, ySize - PlayerInventory.invYSize);
     }
@@ -264,24 +336,36 @@ public class GuiStall extends GuiContainerTFC
         
         for(int i = 0; i < TileEntityStall.GoodsSlotIndexes.length; i++)
         {
-            int slotIndex = TileEntityStall.GoodsSlotIndexes[i];
-            ItemStack itemStack = _stall.getStackInSlot(slotIndex);
+            int goodSlotIndex = TileEntityStall.GoodsSlotIndexes[i];
+            ItemStack goodItemStack = _stall.getStackInSlot(goodSlotIndex);
             
-            if(itemStack == null)
+            if(goodItemStack == null)
                 continue;
 
-            QuantityInfo info = new QuantityInfo();                
-            info.Quantity = _stall.getQuantityInWarehouse(itemStack);
+            int priceSlotIndex = TileEntityStall.PricesSlotIndexes[i];
+            ItemStack priceItemStack = _stall.getStackInSlot(priceSlotIndex);
+            int limit = _stall.getLimitByGoodSlotIndex(goodSlotIndex);
             
-            if(info.Quantity < ItemHelper.getItemStackQuantity(itemStack))
+            QuantityInfo info = new QuantityInfo();                
+            info.Quantity = _stall.getQuantityInWarehouse(goodItemStack);
+            
+            if(info.Quantity < ItemHelper.getItemStackQuantity(goodItemStack))
             {
                 info.Color = _colorFailedText;
-                info.ToolTip = StatCollector.translateToLocal("gui.Stall.NotEnoughGoods");
+                info.ToolTip = StatCollector.translateToLocal("gui.Stall.Tooltip.NoGoods");
+            }
+            else if(priceItemStack != null
+                    && limit > 0
+                    && limit < _stall.getQuantityInWarehouse(priceItemStack) + ItemHelper.getItemStackQuantity(priceItemStack)
+                    )
+            {
+                info.Color = _colorFailedText;
+                info.ToolTip = StatCollector.translateToLocal("gui.Stall.Tooltip.NoPaysSpace");
             }
             else
             {
                 info.Color = _colorSuccessText;
-                info.ToolTip = StatCollector.translateToLocal("gui.Stall.CanBuy");
+                info.ToolTip = StatCollector.translateToLocal("gui.Stall.Tooltip.CanBuy");
             }
             
             _quantities[i] = info;

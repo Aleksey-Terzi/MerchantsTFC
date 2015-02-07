@@ -126,7 +126,7 @@ public class ContainerStall extends ContainerTFC
             {
                 if(this.mergeItemStack(itemstack1, TileEntityStall.ItemCount, this.inventorySlots.size(), true))
                 {
-                    _stall.setOwnerUserName(null);
+                    _stall.setOwner(null);
                     
                     _world.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
                 }
@@ -148,7 +148,7 @@ public class ContainerStall extends ContainerTFC
             
             if(!entityplayer.worldObj.isRemote)
             {
-                _stall.setOwnerUserName(entityplayer.getCommandSenderName());
+                _stall.setOwner(entityplayer);
                 _stall.calculateQuantitiesInWarehouse();
                 
                 _world.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
@@ -177,12 +177,13 @@ public class ContainerStall extends ContainerTFC
 
         ItemStack goodItemStack = slot.getStack();
         
-        int priceSlotIndex = getPriceSlotIndex(slot.getSlotIndex());
+        int goodSlotIndex = slot.getSlotIndex();
+        int priceSlotIndex = getPriceSlotIndex(goodSlotIndex);
         ItemStack payItemStack = _stall.getStackInSlot(priceSlotIndex);
         
         InventoryPlayer inventoryPlayer = entityplayer.inventory;
         
-        if(!preparePayAndTrade(goodItemStack, payItemStack, entityplayer))
+        if(!preparePayAndTrade(goodSlotIndex, goodItemStack, payItemStack, entityplayer))
             return null;
         
         ArrayList<Integer> slotIndexes = new ArrayList<Integer>();
@@ -726,7 +727,7 @@ public class ContainerStall extends ContainerTFC
             
             if(isBookSlot)
             {
-                _stall.setOwnerUserName(player.getCommandSenderName());
+                _stall.setOwner(player);
                 _stall.calculateQuantitiesInWarehouse();
                 
                 _world.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
@@ -777,7 +778,7 @@ public class ContainerStall extends ContainerTFC
                 
                 if(isBookSlot)
                 {
-                    _stall.setOwnerUserName(null);
+                    _stall.setOwner(null);
                     
                     _world.markBlockForUpdate(_stall.xCoord, _stall.yCoord, _stall.zCoord);
                 }
@@ -910,7 +911,8 @@ public class ContainerStall extends ContainerTFC
         if(player.worldObj.isRemote)
             return;
         
-        int priceSlotIndex = getPriceSlotIndex(slot.getSlotIndex());
+        int goodSlotIndex = slot.getSlotIndex();
+        int priceSlotIndex = getPriceSlotIndex(goodSlotIndex);
         
         if(priceSlotIndex < 0)
             return;
@@ -922,7 +924,7 @@ public class ContainerStall extends ContainerTFC
         
         if (playerItemStack == null)
         {
-            if(!preparePayAndTrade(goodItemStack, payItemStack, player))
+            if(!preparePayAndTrade(goodSlotIndex, goodItemStack, payItemStack, player))
                return;
             
             confirmPay(payItemStack, inventoryplayer);
@@ -950,7 +952,7 @@ public class ContainerStall extends ContainerTFC
         if (!slot.isItemValid(playerItemStack)
             || !ItemHelper.areItemEquals(goodItemStack, playerItemStack)
             || goodQuantity + ItemHelper.getItemStackQuantity(playerItemStack) > ItemHelper.getItemStackMaxQuantity(playerItemStack, inventoryplayer)
-            || !preparePayAndTrade(goodItemStack, payItemStack, player)
+            || !preparePayAndTrade(goodSlotIndex, goodItemStack, payItemStack, player)
             )
         {
             return;
@@ -969,23 +971,23 @@ public class ContainerStall extends ContainerTFC
         _stall.actionBuy(inventoryplayer.getItemStack());
     }
     
-    private boolean preparePayAndTrade(ItemStack goodItemStack, ItemStack payItemStack, EntityPlayer player)
+    private boolean preparePayAndTrade(int goodSlotIndex, ItemStack goodItemStack, ItemStack payItemStack, EntityPlayer player)
     {
         if(!preparePay(payItemStack, player.inventory))
         {
-            player.addChatComponentMessage(new ChatComponentTranslation("gui.Stall.NoPays", new Object[0]));
+            player.addChatComponentMessage(new ChatComponentTranslation("gui.Stall.Message.NoPays", new Object[0]));
             return false;
         }
         
-        PrepareTradeResult result = _stall.prepareTrade(goodItemStack, payItemStack);
+        PrepareTradeResult result = _stall.prepareTrade(goodSlotIndex, goodItemStack, payItemStack);
         
         if(result == PrepareTradeResult.Success)
             return true;
         
         if(result == PrepareTradeResult.NoGoods)
-            player.addChatComponentMessage(new ChatComponentTranslation("gui.Stall.NoGoods", new Object[0]));
+            player.addChatComponentMessage(new ChatComponentTranslation("gui.Stall.Message.NoGoods", new Object[0]));
         else
-            player.addChatComponentMessage(new ChatComponentTranslation("gui.Stall.NoPaysSpace", new Object[0]));
+            player.addChatComponentMessage(new ChatComponentTranslation("gui.Stall.Message.NoPaysSpace", new Object[0]));
 
         return false;
     }

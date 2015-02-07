@@ -6,10 +6,12 @@ import net.minecraft.world.World;
 
 import com.aleksey.merchants.Containers.ContainerAnvilDie;
 import com.aleksey.merchants.Containers.ContainerStall;
+import com.aleksey.merchants.Containers.ContainerStallLimit;
 import com.aleksey.merchants.Containers.ContainerTrussel;
 import com.aleksey.merchants.Containers.ContainerWarehouse;
 import com.aleksey.merchants.GUI.GuiAnvilDie;
 import com.aleksey.merchants.GUI.GuiStall;
+import com.aleksey.merchants.GUI.GuiStallLimit;
 import com.aleksey.merchants.GUI.GuiTrussel;
 import com.aleksey.merchants.GUI.GuiTrusselCreate;
 import com.aleksey.merchants.GUI.GuiWarehouse;
@@ -23,10 +25,11 @@ public class GuiHandler implements IGuiHandler
 {
     public static final int GuiOwnerStall = 0;
     public static final int GuiBuyerStall = 1;
-    public static final int GuiWarehouse = 2;
-    public static final int GuiTrusselCreate = 3;
-    public static final int GuiTrussel = 4;
-    public static final int GuiAnvilDie = 5;
+    public static final int GuiOwnerStallLimit = 2;
+    public static final int GuiWarehouse = 3;
+    public static final int GuiTrusselCreate = 4;
+    public static final int GuiTrussel = 5;
+    public static final int GuiAnvilDie = 6;
     
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) 
@@ -39,6 +42,8 @@ public class GuiHandler implements IGuiHandler
                 return new ContainerStall(player.inventory, (TileEntityStall)te, true, world, x, y, z);
             case GuiBuyerStall:
                 return new ContainerStall(player.inventory, (TileEntityStall)te, false, world, x, y, z);
+            case GuiOwnerStallLimit:
+                return new ContainerStallLimit(player.inventory, (TileEntityStall)te, world, x, y, z);
             case GuiWarehouse:
                 return new ContainerWarehouse(player.inventory, (TileEntityWarehouse)te, world, x, y, z);
             case GuiTrusselCreate:
@@ -72,6 +77,8 @@ public class GuiHandler implements IGuiHandler
                 return new GuiStall(player.inventory, (TileEntityStall)te, true, world, x, y, z);
             case GuiBuyerStall:
                 return new GuiStall(player.inventory, (TileEntityStall)te, false, world, x, y, z);
+            case GuiOwnerStallLimit:
+                return new GuiStallLimit(player.inventory, (TileEntityStall)te, world, x, y, z);
             case GuiWarehouse:
                 return new GuiWarehouse(player.inventory, (TileEntityWarehouse)te, world, x, y, z);
             case GuiTrusselCreate:

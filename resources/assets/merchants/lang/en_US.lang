@@ -105,11 +105,19 @@ gui.Stall.Title=Stall
 gui.Stall.Warehouse=Warehouse
 gui.Stall.NoWarehouse=Not Found
 gui.Stall.HasPrices=Price List Specified
-gui.Stall.NotEnoughGoods=No Goods
-gui.Stall.CanBuy=Can Buy
-gui.Stall.NoPays=You don't have enough items for payment
-gui.Stall.NoPaysSpace=Not enough space for payment items in warehouse
-gui.Stall.NoGoods=Not enough goods in warehouse
+gui.Stall.Message.NoPays=You don't have enough items for payment
+gui.Stall.Message.NoPaysSpace=Not enough space for payment items in warehouse
+gui.Stall.Message.NoGoods=Not enough goods in warehouse
+gui.Stall.Tooltip.NoGoods=No Goods
+gui.Stall.Tooltip.CanBuy=Can Buy
+gui.Stall.Tooltip.NoPaysSpace=No space for pay
+gui.Stall.Tooltip.LimitButton=Click to edit limit
+gui.Stall.NA=-
+
+gui.StallLimit.Title=Limit for Price Item
+gui.StallLimit.Limit=Limit
+gui.StallLimit.Apply=Apply
+gui.StallLimit.Cancel=Cancel
 
 gui.Warehouse.Title=Warehouse
 gui.Warehouse.Sign=Sign

@@ -174,7 +174,7 @@ public class BlockStall extends BlockTerraContainer
         
         stall.calculateQuantitiesInWarehouse();
         
-        boolean isOwnerMode = !stall.getIsOwnerSpecified() || (!player.isSneaking() && player.getCommandSenderName().equals(stall.getOwnerUserName())); 
+        boolean isOwnerMode = !stall.getIsOwnerSpecified() || (!player.isSneaking() && stall.isOwner(player)); 
                 
         int guiId = isOwnerMode ? GuiHandler.GuiOwnerStall: GuiHandler.GuiBuyerStall; 
 

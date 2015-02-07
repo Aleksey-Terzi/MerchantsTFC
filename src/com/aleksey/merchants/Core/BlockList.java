@@ -27,7 +27,7 @@ public class BlockList
         GameRegistry.registerBlock(Warehouse, ItemWarehouse.class, Warehouse.getUnlocalizedName().substring(5));
         
         for(int i = 0; i < AnvilDies.length; i++)
-            GameRegistry.registerBlock(AnvilDies[i], null, AnvilDies[i].getUnlocalizedName().substring(5));
+            GameRegistry.registerBlock(AnvilDies[i], AnvilDies[i].getUnlocalizedName().substring(5));
     }
     
     public static void loadBlocks()
