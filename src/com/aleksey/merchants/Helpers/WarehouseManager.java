@@ -287,11 +287,10 @@ public class WarehouseManager
 
     private boolean isAllowedInventory(TileEntity tileEntity)
     {
-        Class<?> cls = tileEntity.getClass();
         
-        for(int i = 0; i < _allowedInventories.length; i++)
+        for(Class<?> klass : _allowedInventories)
         {
-            if(cls == _allowedInventories[i])
+            if(klass.isInstance(tileEntity)
                 return SearchHelper.canSearchItem(tileEntity);
         }
         
