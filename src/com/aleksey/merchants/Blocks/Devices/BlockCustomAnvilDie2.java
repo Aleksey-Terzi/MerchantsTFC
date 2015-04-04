@@ -3,7 +3,7 @@ package com.aleksey.merchants.Blocks.Devices;
 import net.minecraft.block.Block;
 
 import com.aleksey.merchants.Core.DieInfo;
-import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class BlockCustomAnvilDie2 extends BlockCustomAnvilDie
 {
