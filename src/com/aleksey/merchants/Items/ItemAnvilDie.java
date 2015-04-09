@@ -12,7 +12,7 @@ import com.aleksey.merchants.Core.Constants;
 import com.aleksey.merchants.Core.DieInfo;
 import com.aleksey.merchants.TileEntities.TileEntityAnvilDie;
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.api.Enums.EnumSize;
