@@ -29,7 +29,7 @@ import com.bioxx.tfc.TileEntities.TEChest;
 import com.bioxx.tfc.TileEntities.TEIngotPile;
 import com.bioxx.tfc.TileEntities.TELogPile;
 import com.bioxx.tfc.TileEntities.TEVessel;
-import com.bioxx.tfc.TileEntities.TileEntityToolRack;
+import com.bioxx.tfc.TileEntities.TEToolRack;
 import com.bioxx.tfc.api.Food;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Interfaces.IFood;
@@ -338,7 +338,7 @@ public class SearchHelper
         if(cls == TEVessel.class)
             return new SlotChest(inventory, 0, 0, 0).setSize(EnumSize.MEDIUM).addItemException(ContainerChestTFC.getExceptions()).isItemValid(itemStack);
         
-        if(cls == TileEntityToolRack.class)
+        if(cls == TEToolRack.class)
             return isItemValid_ToolRack(itemStack);
 
         return false;

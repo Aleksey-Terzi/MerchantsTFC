@@ -20,7 +20,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid="MerchantsTFC", name="Merchants", version="1.0.26", dependencies="after:TerraFirmaCraft")
+@Mod(modid="MerchantsTFC", name="Merchants", version="1.0.28", dependencies="after:TerraFirmaCraft")
 public class MerchantsMod
 {
     @Instance("MerchantsTFC")

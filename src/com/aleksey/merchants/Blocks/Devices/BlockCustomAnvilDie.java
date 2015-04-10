@@ -43,7 +43,7 @@ public class BlockCustomAnvilDie extends BlockTerraContainer
         
         _info = info;
         
-        this.setCreativeTab(TFCTabs.TFCDevices);
+        //this.setCreativeTab(TFCTabs.TFCDevices);
         this.setBlockBounds(0, 0, 0, 1, 1, 1);
         this.setHardness(4.0F);
         this.setResistance(10.0F);
