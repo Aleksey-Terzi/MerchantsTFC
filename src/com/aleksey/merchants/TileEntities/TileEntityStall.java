@@ -491,6 +491,8 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setByte("Action", _actionId_Buy);
         
+        nbt.setString("playerID", PlayerManagerTFC.getInstance().getClientPlayer().PlayerUUID.toString());
+        
         NBTTagCompound itemTag = new NBTTagCompound();
         itemStack.writeToNBT(itemTag);
         
@@ -503,6 +505,12 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
     
     private void actionHandlerBuy(NBTTagCompound nbt)
     {
+    	UUID actionPlayerID = UUID.fromString(nbt.getString("playerID"));
+    	UUID playerID = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(this.entityplayer).PlayerUUID;
+    	
+    	if(!actionPlayerID.equals(playerID))
+    		return;
+    	
         NBTTagCompound itemTag = nbt.getCompoundTag("Item");
         ItemStack itemStack = ItemStack.loadItemStackFromNBT(itemTag);
         
