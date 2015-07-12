@@ -58,9 +58,9 @@ public class Recipes
     {
         AnvilManager manager = AnvilManager.getInstance();
         
-        manager.addPlan(TrusselPlan, new PlanRecipe(new RuleEnum[] { RuleEnum.DRAWLAST, RuleEnum.UPSETANY, RuleEnum.HITANY }));
-        manager.addPlan(AnvilDiePlan, new PlanRecipe(new RuleEnum[] { RuleEnum.HITLAST, RuleEnum.PUNCHANY, RuleEnum.HITANY }));
-        manager.addPlan(FlanPlan, new PlanRecipe(new RuleEnum[] { RuleEnum.HITLAST, RuleEnum.SHRINKANY, RuleEnum.HITANY }));
+        manager.addPlan(TrusselPlan, new PlanRecipe(new RuleEnum[] { RuleEnum.DRAWLAST, RuleEnum.UPSETNOTLAST, RuleEnum.HITNOTLAST }));
+        manager.addPlan(AnvilDiePlan, new PlanRecipe(new RuleEnum[] { RuleEnum.HITLAST, RuleEnum.PUNCHNOTLAST, RuleEnum.HITNOTLAST }));
+        manager.addPlan(FlanPlan, new PlanRecipe(new RuleEnum[] { RuleEnum.HITLAST, RuleEnum.SHRINKNOTLAST, RuleEnum.HITNOTLAST }));
         
         for(int i = 0; i < Constants.Dies.length; i++)
         {
