@@ -40,7 +40,7 @@ public class RenderAnvilDie implements ISimpleBlockRenderingHandler
         setBound(_anvilDieBound, renderer);
         renderer.renderStandardBlock(block, x, y, z);
 
-        return false;
+        return true;
     }
     
     @Override

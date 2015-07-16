@@ -63,7 +63,7 @@ public class RenderStall implements ISimpleBlockRenderingHandler
         
         renderer.renderStandardBlock(block, x, y, z);
 
-        return false;
+        return true;
     }
     
     @Override

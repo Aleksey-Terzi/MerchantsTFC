@@ -112,7 +112,7 @@ public class RenderWarehouse implements ISimpleBlockRenderingHandler
             }
         }
 
-        return false;
+        return true;
     }
     
     @Override
