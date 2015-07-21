@@ -32,9 +32,6 @@ public class BlockStall extends BlockTerraContainer
     @SideOnly(Side.CLIENT)
     private IIcon _topIcon;
     
-    @SideOnly(Side.CLIENT)
-    private IIcon _topEmptyIcon;
-
     public BlockStall()
     {
         super(Material.wood);
@@ -46,16 +43,15 @@ public class BlockStall extends BlockTerraContainer
     @Override
     public void registerBlockIcons(IIconRegister register)
     {
-        _topIcon = register.registerIcon("merchants:StallTop");
-        _topEmptyIcon = register.registerIcon("merchants:StallEmptyTop");
+        _topIcon = register.registerIcon("merchants:StallEmptyTop");
     }
 
     @Override
     public IIcon getIcon(int side, int meta)
     {
-        return meta == 0 ? _topEmptyIcon: _topIcon;
+        return _topIcon;
     }
-
+    
     @Override
     public int damageDropped(int meta)
     {

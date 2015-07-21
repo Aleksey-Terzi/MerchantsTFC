@@ -388,24 +388,11 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
     @Override
     public void handleInitPacket(NBTTagCompound nbt)
     {
-        _ownerUserName = nbt.hasKey("OwnerUserName") ? nbt.getString("OwnerUserName"): null;
-        _ownerUserID = nbt.hasKey("OwnerUserID") ? UUID.fromString(nbt.getString("OwnerUserID")): null;
+    	readStallFromNBT(nbt);
 
         _warehouse.readFromNBT(nbt);
         
         _bookInfo = nbt.hasKey("Book") ? WarehouseBookInfo.readFromNBT(nbt.getCompoundTag("Book")): null;
-
-        if(nbt.hasKey("Limits"))
-        {
-            _limits = nbt.getIntArray("Limits");
-        }
-        else
-        {
-            for(int i = 0; i < _limits.length; i++)
-                _limits[i] = 0;
-        }
-        
-        _activeGoodSlotIndex = nbt.hasKey("ActiveGoodSlotIndex") ? nbt.getInteger("ActiveGoodSlotIndex"): 0;
 
         this.worldObj.func_147479_m(xCoord, yCoord, zCoord);
     }
@@ -413,12 +400,8 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
     @Override
     public void createInitNBT(NBTTagCompound nbt)
     {
-        if(_ownerUserName != null)
-            nbt.setString("OwnerUserName", _ownerUserName);
-
-        if(_ownerUserID != null)
-            nbt.setString("OwnerUserID", _ownerUserID.toString());
-
+    	writeStallToNBT(nbt);
+        
         _warehouse.writeToNBT(nbt);
         
         if(_bookInfo != null)
@@ -428,10 +411,6 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
             
             nbt.setTag("Book", bookTag);
         }
-        
-        nbt.setIntArray("Limits", _limits);
-        
-        nbt.setInteger("ActiveGoodSlotIndex", _activeGoodSlotIndex);
     }
 
     @Override

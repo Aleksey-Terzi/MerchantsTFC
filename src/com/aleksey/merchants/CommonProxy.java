@@ -18,16 +18,26 @@ public class CommonProxy
     
     public void registerTileEntities()
     {
+        registerServerTileEntities();
+        registerCommonTileEntities();
+    }
+    
+    protected void registerServerTileEntities()
+    {
         GameRegistry.registerTileEntity(TileEntityStall.class, "TileEntityStall");
+    }
+    
+    protected void registerCommonTileEntities()
+    {
         GameRegistry.registerTileEntity(TileEntityWarehouse.class, "TileEntityWarehouse");
         GameRegistry.registerTileEntity(TileEntityAnvilDie.class, "TileEntityAnvilDie");
     }
-    
+
     public void registerGuiHandler()
     {
         NetworkRegistry.INSTANCE.registerGuiHandler(MerchantsMod.instance, new GuiHandler());
     }
-    
+        
     public void registerTickHandler()
     {
         FMLCommonHandler.instance().bus().register(new ServerTickHandler());
