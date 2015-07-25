@@ -355,10 +355,15 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         
         _bookInfo = nbt.hasKey("Book") ? WarehouseBookInfo.readFromNBT(nbt.getCompoundTag("Book")): null;
     }
+    
+    public static String readOwnerUserNameFromNBT(NBTTagCompound nbt)
+    {
+    	return nbt.hasKey("OwnerUserName") ? nbt.getString("OwnerUserName"): null;
+    }
 
     public void readStallFromNBT(NBTTagCompound nbt)
     {
-        _ownerUserName = nbt.hasKey("OwnerUserName") ? nbt.getString("OwnerUserName"): null;
+        _ownerUserName = readOwnerUserNameFromNBT(nbt);
         _ownerUserID = nbt.hasKey("OwnerUserID") ? UUID.fromString(nbt.getString("OwnerUserID")): null;
         
         NBTTagList itemList = nbt.getTagList("Items", 10);

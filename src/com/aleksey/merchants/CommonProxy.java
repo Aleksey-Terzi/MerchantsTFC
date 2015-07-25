@@ -7,11 +7,17 @@ import com.aleksey.merchants.TileEntities.TileEntityStall;
 import com.aleksey.merchants.TileEntities.TileEntityWarehouse;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public class CommonProxy
 {
+    public boolean isRemote()
+    {
+        return false;
+    }
+
     public void registerRenderInformation()
     {
     }
@@ -42,9 +48,13 @@ public class CommonProxy
     {
         FMLCommonHandler.instance().bus().register(new ServerTickHandler());
     }
-
-    public boolean isRemote()
-    {
-        return false;
-    }
+    
+	public void registerWailaClasses()
+	{
+		FMLInterModComms.sendMessage("Waila", "register", "com.aleksey.merchants.WAILA.WAILAData.callbackRegister");
+	}
+	
+	public void hideNEIItems()
+	{
+	}
 }
