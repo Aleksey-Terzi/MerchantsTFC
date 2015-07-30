@@ -9,6 +9,7 @@ import com.aleksey.merchants.Core.Player.PlayerTracker;
 import com.aleksey.merchants.Handlers.ChunkEventHandler;
 import com.aleksey.merchants.Handlers.Network.DieCopyPacket;
 import com.aleksey.merchants.Handlers.Network.InitClientWorldPacket;
+import com.aleksey.merchants.Helpers.WarehouseManager;
 import com.bioxx.tfc.TerraFirmaCraft;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -59,6 +60,8 @@ public class MerchantsMod
         proxy.registerRenderInformation();
         
         Recipes.registerRecipes();
+        
+        WarehouseManager.init();
         
 		//WAILA stuff
 		proxy.registerWailaClasses();

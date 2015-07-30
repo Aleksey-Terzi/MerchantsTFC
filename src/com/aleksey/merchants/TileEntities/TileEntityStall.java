@@ -106,7 +106,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
             if(_bookInfo != null)
             {
                 if(_warehouse.existWarehouse(this.xCoord, this.yCoord, this.zCoord, _bookInfo, this.worldObj))
-                    _warehouse.searchContainers(_bookInfo, this.worldObj);
+                    _warehouse.searchContainerLocations(_bookInfo, this.worldObj);
                 else
                     _bookInfo = null;
             }

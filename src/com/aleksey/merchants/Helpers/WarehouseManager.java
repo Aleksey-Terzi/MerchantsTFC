@@ -10,52 +10,57 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
 
-import com.aleksey.merchants.Core.Point;
 import com.aleksey.merchants.Core.WarehouseBookInfo;
 import com.aleksey.merchants.TileEntities.TileEntityWarehouse;
+import com.aleksey.merchants.WarehouseContainers.BarrelContainer;
+import com.aleksey.merchants.WarehouseContainers.ChestContainer;
+import com.aleksey.merchants.WarehouseContainers.IngotPileContainer;
+import com.aleksey.merchants.WarehouseContainers.LogPileContainer;
+import com.aleksey.merchants.WarehouseContainers.ToolRackContainer;
+import com.aleksey.merchants.api.IWarehouseContainer;
+import com.aleksey.merchants.api.ItemTileEntity;
+import com.aleksey.merchants.api.Point;
 import com.bioxx.tfc.Items.Pottery.ItemPotterySmallVessel;
-import com.bioxx.tfc.TileEntities.TEBarrel;
-import com.bioxx.tfc.TileEntities.TEChest;
-import com.bioxx.tfc.TileEntities.TEIngotPile;
-import com.bioxx.tfc.TileEntities.TELogPile;
-import com.bioxx.tfc.TileEntities.TEVessel;
-import com.bioxx.tfc.TileEntities.TEToolRack;
 import com.bioxx.tfc.api.Interfaces.IFood;
 
 public class WarehouseManager
 {
     private static final int _searchContainerRadius = 3;
     private static final int _searchWarehouseDistance = 10;
+
+    private static ArrayList<IWarehouseContainer> _allowedContainers;
     
-    private static final Class<?>[] _allowedInventories = {
-        TileEntityChest.class,
-        TEChest.class,
-        TELogPile.class,
-        TEIngotPile.class,
-        TEBarrel.class,
-        TEVessel.class,
-        TEToolRack.class,
-    };
-    
-    private ArrayList<Point> _containers;
+    private ArrayList<Point> _containerLocations;
     private Hashtable<String, Integer> _quantities;
     private ItemStack _goodItemStack;
     private ItemStack _payItemStack;
-    private ArrayList<SearchTileEntity> _goodList;
-    private ArrayList<SearchTileEntity> _payList;
+    private ArrayList<ItemTileEntity> _goodList;
+    private ArrayList<ItemTileEntity> _payList;
+    
+    public static void init()
+    {
+        if(_allowedContainers != null)
+            return;
+        
+        _allowedContainers = new ArrayList<IWarehouseContainer>();
+        _allowedContainers.add(new ChestContainer());
+        _allowedContainers.add(new LogPileContainer());
+        _allowedContainers.add(new IngotPileContainer());
+        _allowedContainers.add(new ToolRackContainer());
+        _allowedContainers.add(new BarrelContainer());
+    }
 
     public WarehouseManager()
     {
-        _containers = new ArrayList<Point>();
+        _containerLocations = new ArrayList<Point>();
         _quantities = new Hashtable<String, Integer>(); 
     }
     
     public int getContainers()
     {
-        return _containers.size();
+        return _containerLocations.size();
     }
     
     public int getQuantity(ItemStack itemStack)
@@ -67,18 +72,42 @@ public class WarehouseManager
     
     public void confirmTrade(World world)
     {
-        TradeHelper.confirmTradeGoods(_goodItemStack, _goodList, world);
+        confirmTradeGoods(world);
         
         String goodKey = ItemHelper.getItemKey(_goodItemStack);
         _quantities.put(goodKey, _quantities.get(goodKey) - ItemHelper.getItemStackQuantity(_goodItemStack));        
         _goodList = null;
         
-        TradeHelper.confirmTradePays(_payItemStack, _payList, _containers, world);
+        confirmTradePays(world);
         
         String payKey = ItemHelper.getItemKey(_payItemStack);
         int currentQuantity = _quantities.containsKey(payKey) ? _quantities.get(payKey): 0;
         _quantities.put(payKey, currentQuantity + ItemHelper.getItemStackQuantity(_payItemStack));
         _payList = null;
+    }
+    
+    private void confirmTradeGoods(World world)
+    {
+        for(int i = 0; i < _goodList.size(); i++)
+        {
+            ItemTileEntity goodTileEntity = _goodList.get(i);
+            
+            goodTileEntity.Container.confirmTradeGoods(world, goodTileEntity, _goodItemStack);
+            
+            world.markBlockForUpdate(goodTileEntity.TileEntity.xCoord, goodTileEntity.TileEntity.yCoord, goodTileEntity.TileEntity.zCoord);
+        }
+    }
+    
+    private void confirmTradePays(World world)
+    {
+        for(int i = 0; i < _payList.size(); i++)
+        {
+            ItemTileEntity payTileEntity = _payList.get(i);
+            
+            payTileEntity.Container.confirmTradePays(world, payTileEntity, _payItemStack, _containerLocations);
+            
+            world.markBlockForUpdate(payTileEntity.TileEntity.xCoord, payTileEntity.TileEntity.yCoord, payTileEntity.TileEntity.zCoord);
+        }
     }
     
     public PrepareTradeResult prepareTrade(ItemStack goodStack, ItemStack payStack, WarehouseBookInfo info, World world)
@@ -89,38 +118,38 @@ public class WarehouseManager
         if(goodQuantity == 0 || getQuantity(goodStack) < goodQuantity)
             return PrepareTradeResult.NoGoods;
         
-        _goodList = new ArrayList<SearchTileEntity>();
-        _payList = new ArrayList<SearchTileEntity>();
+        _goodList = new ArrayList<ItemTileEntity>();
+        _payList = new ArrayList<ItemTileEntity>();
         
         if(payStack.getItem() instanceof IFood)
         {
-            for(int i = 0; i < _containers.size() && payQuantity > 0; i++)
+            for(int i = 0; i < _containerLocations.size() && payQuantity > 0; i++)
             {
-                Point p = _containers.get(i); 
+                Point p = _containerLocations.get(i); 
                 TileEntity tileEntity = world.getTileEntity(p.X, p.Y, p.Z);
+                IWarehouseContainer container = getContainer(tileEntity);
                 
-                if(tileEntity == null || !(tileEntity instanceof IInventory))
-                    continue;
-                
-                payQuantity -= SearchHelper.searchFreeSpaceInSmallVessels(payStack, payQuantity, tileEntity, _payList);
+                if(container != null)
+                    payQuantity -= container.searchFreeSpaceInSmallVessels(tileEntity, payStack, payQuantity, _payList);
             }
         }
         
         int extendLimitY = info.Y + _searchContainerRadius;
 
-        for(int i = 0; i < _containers.size() && (goodQuantity > 0 || payQuantity > 0); i++)
+        for(int i = 0; i < _containerLocations.size() && (goodQuantity > 0 || payQuantity > 0); i++)
         {
-            Point p = _containers.get(i); 
+            Point p = _containerLocations.get(i); 
             TileEntity tileEntity = world.getTileEntity(p.X, p.Y, p.Z);
+            IWarehouseContainer container = getContainer(tileEntity);
             
-            if(tileEntity == null || !(tileEntity instanceof IInventory))
+            if(container == null)
                 continue;
             
             if(goodQuantity > 0)
-                goodQuantity -= SearchHelper.searchItems(goodStack, goodQuantity, tileEntity, _goodList);
+                goodQuantity -= container.searchItems(tileEntity, goodStack, goodQuantity, _goodList);
             
             if(payQuantity > 0)
-                payQuantity -= SearchHelper.searchFreeSpace(payStack, payQuantity, tileEntity, extendLimitY, world, _payList);
+                payQuantity -= container.searchFreeSpace(world, tileEntity, payStack, payQuantity, extendLimitY, _payList);
         }
         
         _goodItemStack = goodStack.copy();
@@ -144,9 +173,9 @@ public class WarehouseManager
         return tileEntity instanceof TileEntityWarehouse && ((TileEntityWarehouse)tileEntity).getKey() == info.Key;
     }
 
-    public void searchContainers(WarehouseBookInfo info, World world)
+    public void searchContainerLocations(WarehouseBookInfo info, World world)
     {
-        _containers.clear();
+        _containerLocations.clear();
         _quantities.clear();
         
         int startX = info.X - _searchContainerRadius;
@@ -164,15 +193,29 @@ public class WarehouseManager
                 {
                     TileEntity tileEntity = world.getTileEntity(x, y, z);
                     
-                    if(tileEntity != null && isAllowedInventory(tileEntity))
+                    if(getContainer(tileEntity) != null)
                     {
-                        _containers.add(new Point(x, y, z));
+                        _containerLocations.add(new Point(x, y, z));
                         
                         calculateQuantities((IInventory)tileEntity);
                     }
                 }
             }
         }
+    }
+    
+    private static IWarehouseContainer getContainer(TileEntity tileEntity)
+    {
+        if(tileEntity == null || !(tileEntity instanceof IInventory))
+            return null;
+        
+        for(IWarehouseContainer container : _allowedContainers)
+        {
+            if(container.isValid(tileEntity))
+                return container;
+        }
+        
+        return null;
     }
 
     private void calculateQuantities(IInventory inventory)
@@ -223,9 +266,9 @@ public class WarehouseManager
     {
         NBTTagList containerList = new NBTTagList();
         
-        for(int i = 0; i < _containers.size(); i++)
+        for(int i = 0; i < _containerLocations.size(); i++)
         {
-            Point p = _containers.get(i); 
+            Point p = _containerLocations.get(i); 
             
             NBTTagCompound pointTag = new NBTTagCompound();
             pointTag.setInteger("X", p.X);
@@ -256,7 +299,7 @@ public class WarehouseManager
 
     public void readFromNBT(NBTTagCompound nbt)
     {
-        _containers.clear();
+        _containerLocations.clear();
         _quantities.clear();
         
         if(nbt.hasKey("Containers"))
@@ -268,7 +311,7 @@ public class WarehouseManager
                 NBTTagCompound containerTag = containerList.getCompoundTagAt(i);
                 Point p = new Point(containerTag.getInteger("X"), containerTag.getInteger("Y"), containerTag.getInteger("Z"));
                 
-                _containers.add(p);
+                _containerLocations.add(p);
             }
         }
         
@@ -283,16 +326,5 @@ public class WarehouseManager
                 _quantities.put(qtyTag.getString("Key"), qtyTag.getInteger("Value"));
             }
         }
-    }
-
-    private boolean isAllowedInventory(TileEntity tileEntity)
-    {
-        for(Class<?> cls : _allowedInventories)
-        {
-            if(cls.isInstance(tileEntity))
-                return SearchHelper.canSearchItem(tileEntity);
-        }
-        
-        return false;
     }
 }

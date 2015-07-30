@@ -1,4 +1,4 @@
-package com.aleksey.merchants.Core;
+package com.aleksey.merchants.api;
 
 public class Point
 {

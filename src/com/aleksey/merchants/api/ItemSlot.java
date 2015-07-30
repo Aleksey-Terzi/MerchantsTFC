@@ -1,11 +1,11 @@
-package com.aleksey.merchants.Helpers;
+package com.aleksey.merchants.api;
 
-public class SearchItem
+public class ItemSlot
 {
     public int SlotIndex;
     public int Quantity;
     
-    public SearchItem(int slotIndex, int quantity)
+    public ItemSlot(int slotIndex, int quantity)
     {
         SlotIndex = slotIndex;
         Quantity = quantity;
