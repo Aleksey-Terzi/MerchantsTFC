@@ -2,6 +2,7 @@ package com.aleksey.merchants.Blocks.Devices;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -32,6 +33,9 @@ public class BlockStall extends BlockTerraContainer
     @SideOnly(Side.CLIENT)
     private IIcon _topIcon;
     
+    @SideOnly(Side.CLIENT)
+    private IIcon _topEmptyIcon;
+    
     public BlockStall()
     {
         super(Material.wood);
@@ -43,13 +47,14 @@ public class BlockStall extends BlockTerraContainer
     @Override
     public void registerBlockIcons(IIconRegister register)
     {
-        _topIcon = register.registerIcon("merchants:StallEmptyTop");
+        _topIcon = register.registerIcon("merchants:StallTop");
+        _topEmptyIcon = register.registerIcon("merchants:StallEmptyTop");
     }
 
     @Override
     public IIcon getIcon(int side, int meta)
     {
-        return _topIcon;
+        return meta == 0 || RenderManager.instance.options.fancyGraphics ? _topEmptyIcon: _topIcon;
     }
     
     @Override
