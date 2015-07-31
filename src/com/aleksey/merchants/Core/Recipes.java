@@ -5,9 +5,9 @@ import java.util.Map;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
-import com.aleksey.merchants.Core.Constants;
 import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Crafting.AnvilManager;
@@ -54,10 +54,12 @@ public class Recipes
         return map.containsKey(TrusselPlan);
     }
     
-    public static void registerAnvilRecipes()
+    public static void registerAnvilRecipes(World world)
     {
         AnvilManager manager = AnvilManager.getInstance();
-        
+        //We need to set the world ref so that all anvil recipes can generate correctly
+        AnvilManager.world = world;
+
         manager.addPlan(TrusselPlan, new PlanRecipe(new RuleEnum[] { RuleEnum.DRAWLAST, RuleEnum.UPSETNOTLAST, RuleEnum.HITNOTLAST }));
         manager.addPlan(AnvilDiePlan, new PlanRecipe(new RuleEnum[] { RuleEnum.HITLAST, RuleEnum.PUNCHNOTLAST, RuleEnum.HITNOTLAST }));
         manager.addPlan(FlanPlan, new PlanRecipe(new RuleEnum[] { RuleEnum.HITLAST, RuleEnum.SHRINKNOTLAST, RuleEnum.HITNOTLAST }));

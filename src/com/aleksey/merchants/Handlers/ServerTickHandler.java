@@ -19,7 +19,7 @@ public class ServerTickHandler
         {
             if(world.provider.dimensionId == 0 && !Recipes.areAnvilRecipesRegistered())
             {
-                Recipes.registerAnvilRecipes();
+                Recipes.registerAnvilRecipes(world);
             }
         }
     }

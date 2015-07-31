@@ -13,7 +13,7 @@ public class ChunkEventHandler
     {
         if(!event.world.isRemote && event.world.provider.dimensionId == 0 && !Recipes.areAnvilRecipesRegistered())
         {
-            Recipes.registerAnvilRecipes();
+            Recipes.registerAnvilRecipes(event.world);
         }
     }
 }

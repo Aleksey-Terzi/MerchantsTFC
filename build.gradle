@@ -16,7 +16,7 @@ buildscript {
 }
 
 configurations {
-  runtime.exclude group: "[1.7.10]TerraFirmaCraft-0.79.18.673"
+  runtime.exclude group: "[1.7.10]TerraFirmaCraft-0.79.21.741"
 }
 
 // define the properties file
@@ -64,7 +64,7 @@ task copyJar(type: Copy) {
 tasks.build.dependsOn('copyJar')
 
 dependencies {
-    // Copy "[1.7.10]TerraFirmaCraft-0.79.18.673.jar" file
+    // Copy "[1.7.10]TerraFirmaCraft-0.79.21.741.jar" file
 	// into the ./libs directory
 }
 
