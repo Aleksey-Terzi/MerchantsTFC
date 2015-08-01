@@ -13,6 +13,9 @@ public class ItemHelper
 {
     public static final boolean areItemEquals(ItemStack itemStack1, ItemStack itemStack2)
     {
+        if(itemStack1 == null || itemStack2 == null)
+            return false;
+        
         if(itemStack1.getItem() != itemStack2.getItem() || itemStack1.getItemDamage() != itemStack2.getItemDamage())
             return false;
 

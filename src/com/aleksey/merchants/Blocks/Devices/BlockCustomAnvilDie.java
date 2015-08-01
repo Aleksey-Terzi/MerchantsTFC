@@ -100,7 +100,6 @@ public class BlockCustomAnvilDie extends BlockTerraContainer
     @Override
     public boolean canDropFromExplosion(Explosion exp)
     {
-
         return true;
     }
 

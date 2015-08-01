@@ -1,9 +1,10 @@
 package com.aleksey.merchants;
 
-import com.aleksey.merchants.Handlers.ServerTickHandler;
 import com.aleksey.merchants.Handlers.GuiHandler;
+import com.aleksey.merchants.Handlers.ServerTickHandler;
 import com.aleksey.merchants.TileEntities.TileEntityAnvilDie;
 import com.aleksey.merchants.TileEntities.TileEntityStall;
+import com.aleksey.merchants.TileEntities.TileEntityStorageRack;
 import com.aleksey.merchants.TileEntities.TileEntityWarehouse;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -31,6 +32,7 @@ public class CommonProxy
     protected void registerServerTileEntities()
     {
         GameRegistry.registerTileEntity(TileEntityStall.class, "TileEntityStall");
+        GameRegistry.registerTileEntity(TileEntityStorageRack.class, "TileEntityStorageRack");
     }
     
     protected void registerCommonTileEntities()

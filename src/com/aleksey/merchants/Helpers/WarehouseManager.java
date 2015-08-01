@@ -22,6 +22,7 @@ import com.aleksey.merchants.WarehouseContainers.ToolRackContainer;
 import com.aleksey.merchants.api.IWarehouseContainer;
 import com.aleksey.merchants.api.ItemTileEntity;
 import com.aleksey.merchants.api.Point;
+import com.aleksey.merchants.api.WarehouseContainerList;
 import com.bioxx.tfc.Items.Pottery.ItemPotterySmallVessel;
 import com.bioxx.tfc.api.Interfaces.IFood;
 
@@ -30,8 +31,6 @@ public class WarehouseManager
     private static final int _searchContainerRadius = 3;
     private static final int _searchWarehouseDistance = 10;
 
-    private static ArrayList<IWarehouseContainer> _allowedContainers;
-    
     private ArrayList<Point> _containerLocations;
     private Hashtable<String, Integer> _quantities;
     private ItemStack _goodItemStack;
@@ -41,15 +40,11 @@ public class WarehouseManager
     
     public static void init()
     {
-        if(_allowedContainers != null)
-            return;
-        
-        _allowedContainers = new ArrayList<IWarehouseContainer>();
-        _allowedContainers.add(new ChestContainer());
-        _allowedContainers.add(new LogPileContainer());
-        _allowedContainers.add(new IngotPileContainer());
-        _allowedContainers.add(new ToolRackContainer());
-        _allowedContainers.add(new BarrelContainer());
+        WarehouseContainerList.addContainer(new ChestContainer());
+        WarehouseContainerList.addContainer(new LogPileContainer());
+        WarehouseContainerList.addContainer(new IngotPileContainer());
+        WarehouseContainerList.addContainer(new ToolRackContainer());
+        WarehouseContainerList.addContainer(new BarrelContainer());
     }
 
     public WarehouseManager()
@@ -127,7 +122,7 @@ public class WarehouseManager
             {
                 Point p = _containerLocations.get(i); 
                 TileEntity tileEntity = world.getTileEntity(p.X, p.Y, p.Z);
-                IWarehouseContainer container = getContainer(tileEntity);
+                IWarehouseContainer container = WarehouseContainerList.getContainer(tileEntity);
                 
                 if(container != null)
                     payQuantity -= container.searchFreeSpaceInSmallVessels(tileEntity, payStack, payQuantity, _payList);
@@ -140,7 +135,7 @@ public class WarehouseManager
         {
             Point p = _containerLocations.get(i); 
             TileEntity tileEntity = world.getTileEntity(p.X, p.Y, p.Z);
-            IWarehouseContainer container = getContainer(tileEntity);
+            IWarehouseContainer container = WarehouseContainerList.getContainer(tileEntity);
             
             if(container == null)
                 continue;
@@ -193,7 +188,7 @@ public class WarehouseManager
                 {
                     TileEntity tileEntity = world.getTileEntity(x, y, z);
                     
-                    if(getContainer(tileEntity) != null)
+                    if(WarehouseContainerList.getContainer(tileEntity) != null)
                     {
                         _containerLocations.add(new Point(x, y, z));
                         
@@ -202,20 +197,6 @@ public class WarehouseManager
                 }
             }
         }
-    }
-    
-    private static IWarehouseContainer getContainer(TileEntity tileEntity)
-    {
-        if(tileEntity == null || !(tileEntity instanceof IInventory))
-            return null;
-        
-        for(IWarehouseContainer container : _allowedContainers)
-        {
-            if(container.isValid(tileEntity))
-                return container;
-        }
-        
-        return null;
     }
 
     private void calculateQuantities(IInventory inventory)

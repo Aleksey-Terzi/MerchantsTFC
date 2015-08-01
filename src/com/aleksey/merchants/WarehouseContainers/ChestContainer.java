@@ -9,8 +9,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
 
+import com.aleksey.merchants.Containers.Slots.SlotStorageRack;
 import com.aleksey.merchants.Helpers.ItemHelper;
 import com.aleksey.merchants.Helpers.SmallVesselHelper;
+import com.aleksey.merchants.TileEntities.TileEntityStorageRack;
 import com.aleksey.merchants.api.ItemSlot;
 import com.aleksey.merchants.api.ItemTileEntity;
 import com.aleksey.merchants.api.Point;
@@ -24,6 +26,7 @@ public class ChestContainer extends Container
     private static final Class<?>[] _allowedTileEntities = {
         TileEntityChest.class,
         TEChest.class,
+        TileEntityStorageRack.class
     };
 	
     @Override
@@ -135,6 +138,9 @@ public class ChestContainer extends Container
         
         if(cls == TileEntityChest.class)
             return new Slot(inventory, 0, 0, 0).isItemValid(itemStack);
+
+        if(cls == TileEntityStorageRack.class)
+            return new SlotStorageRack(inventory, 0, 0, 0).isItemValid(itemStack);
 
         return false;
     }

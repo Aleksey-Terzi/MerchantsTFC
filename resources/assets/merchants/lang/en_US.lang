@@ -57,6 +57,24 @@ tile.AnvilDie.BlueSteel2.name=Blue Steel Anvil Die
 tile.AnvilDie.RedSteel.name=Red Steel Anvil Die
 tile.AnvilDie.RedSteel2.name=Red Steel Anvil Die
 
+tile.StorageRack.Oak.name=Oak Storage Rack
+tile.StorageRack.Aspen.name=Aspen Storage Rack
+tile.StorageRack.Birch.name=Birch Storage Rack
+tile.StorageRack.Chestnut.name=Chestnut Storage Rack
+tile.StorageRack.Douglas Fir.name=Douglas Fir Storage Rack
+tile.StorageRack.Hickory.name=Hickory Storage Rack
+tile.StorageRack.Maple.name=Maple Storage Rack
+tile.StorageRack.Ash.name=Ash Storage Rack
+tile.StorageRack.Pine.name=Pine Storage Rack
+tile.StorageRack.Sequoia.name=Sequoia Storage Rack
+tile.StorageRack.Spruce.name=Spruce Storage Rack
+tile.StorageRack.Sycamore.name=Sycamore Storage Rack
+tile.StorageRack.White Cedar.name=White Cedar Storage Rack
+tile.StorageRack.White Elm.name=White Elm Storage Rack
+tile.StorageRack.Willow.name=Willow Storage Rack
+tile.StorageRack.Kapok.name=Kapok Storage Rack
+tile.StorageRack2.Acacia.name=Acacia Storage Rack
+
 item.WarehouseBook.name=Warehouse Book
 
 item.Flan.Bismuth.name=Bismuth Flan
@@ -182,3 +200,5 @@ gui.AnvilDie.Mint=Mint
 gui.plans.trussel=Trussel
 gui.plans.anvildie=Anvil Die
 gui.plans.flan=Flan
+
+gui.StorageRack.Title=Storage Rack
