@@ -19,11 +19,11 @@ import net.minecraft.world.World;
 
 import com.aleksey.merchants.MerchantsMod;
 import com.aleksey.merchants.Core.BlockList;
+import com.aleksey.merchants.Core.MerchantsTabs;
 import com.aleksey.merchants.Handlers.GuiHandler;
 import com.aleksey.merchants.Render.Blocks.RenderStall;
 import com.aleksey.merchants.TileEntities.TileEntityStall;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
-import com.bioxx.tfc.Core.TFCTabs;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -36,11 +36,19 @@ public class BlockStall extends BlockTerraContainer
     @SideOnly(Side.CLIENT)
     private IIcon _topEmptyIcon;
     
-    public BlockStall()
+    private int _woodIndex;
+    public int getWoodIndex()
+    {
+        return _woodIndex;
+    }
+    
+    public BlockStall(int woodIndex)
     {
         super(Material.wood);
-        this.setCreativeTab(TFCTabs.TFCDevices);
+        this.setCreativeTab(MerchantsTabs.MainTab);
         this.setBlockBounds(0, 0, 0, 1, (float)(RenderStall.VoxelSizeScaled * 10), 1);
+        
+        _woodIndex = woodIndex;
     }
 
     @SideOnly(Side.CLIENT)

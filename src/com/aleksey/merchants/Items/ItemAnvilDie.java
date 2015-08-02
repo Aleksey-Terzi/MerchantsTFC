@@ -9,8 +9,8 @@ import net.minecraft.world.World;
 
 import com.aleksey.merchants.Core.BlockList;
 import com.aleksey.merchants.Core.Constants;
+import com.aleksey.merchants.Core.MerchantsTabs;
 import com.aleksey.merchants.TileEntities.TileEntityAnvilDie;
-import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Enums.EnumSize;
@@ -26,7 +26,7 @@ public class ItemAnvilDie extends ItemTerra
         super();
         
         setMaxDamage(0);
-        setCreativeTab(TFCTabs.TFCMisc);
+        setCreativeTab(MerchantsTabs.MainTab);
         setHasSubtypes(true);
         
         MetaNames = new String[Constants.Dies.length];

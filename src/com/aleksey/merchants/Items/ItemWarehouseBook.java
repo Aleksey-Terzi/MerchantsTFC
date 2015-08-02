@@ -8,7 +8,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 
 import com.aleksey.merchants.Core.WarehouseBookInfo;
-import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
@@ -23,7 +22,6 @@ public class ItemWarehouseBook extends ItemTerra
         super();
         
         setMaxDamage(0);
-        setCreativeTab(TFCTabs.TFCMisc);
     }
     
     @Override

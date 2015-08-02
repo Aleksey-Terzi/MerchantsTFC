@@ -12,10 +12,9 @@ import net.minecraft.world.World;
 
 import com.aleksey.merchants.MerchantsMod;
 import com.aleksey.merchants.Core.Constants;
-import com.aleksey.merchants.Core.DieInfo;
+import com.aleksey.merchants.Core.MerchantsTabs;
 import com.aleksey.merchants.Handlers.GuiHandler;
 import com.aleksey.merchants.Helpers.CoinHelper;
-import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
@@ -33,7 +32,7 @@ public class ItemTrussel extends ItemTerra
         super();
         
         setMaxDamage(0);
-        setCreativeTab(TFCTabs.TFCMisc);
+        setCreativeTab(MerchantsTabs.MainTab);
         setHasSubtypes(true);
         
         MetaNames = new String[Constants.Dies.length];

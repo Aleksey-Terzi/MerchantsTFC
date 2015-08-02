@@ -17,11 +17,10 @@ import net.minecraft.world.World;
 
 import com.aleksey.merchants.MerchantsMod;
 import com.aleksey.merchants.Core.BlockList;
+import com.aleksey.merchants.Core.MerchantsTabs;
 import com.aleksey.merchants.Handlers.GuiHandler;
 import com.aleksey.merchants.TileEntities.TileEntityStorageRack;
-import com.aleksey.merchants.TileEntities.TileEntityWarehouse;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
-import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Constant.Global;
 
@@ -30,13 +29,16 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockStorageRack extends BlockTerraContainer
 {
-    private String[] _woodNames;
     private int _startWoodIndex;
+    public int getStartWoodIndex()
+    {
+        return _startWoodIndex;
+    }
 
     public BlockStorageRack(int startWoodIndex)
     {
         super(Material.wood);
-        this.setCreativeTab(TFCTabs.TFCDevices);
+        this.setCreativeTab(MerchantsTabs.MainTab);
         this.setBlockBounds(0, 0, 0, 1, 1, 1);
         this.setHardness(2.0F);
         this.setStepSound(Block.soundTypeWood);

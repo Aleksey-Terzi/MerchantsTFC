@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
+import com.aleksey.merchants.Blocks.Devices.BlockStorageRack;
 import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
@@ -16,7 +17,7 @@ import com.bioxx.tfc.api.Interfaces.ISize;
 
 public class ItemStorageRack extends ItemBlock implements ISize
 {
-    protected int _startWoodIndex;
+    private int _startWoodIndex;
     
     public ItemStorageRack(Block block)
     {
@@ -24,7 +25,7 @@ public class ItemStorageRack extends ItemBlock implements ISize
         
         setHasSubtypes(true);
         
-        _startWoodIndex = 0;
+        _startWoodIndex = ((BlockStorageRack)block).getStartWoodIndex();
     }
     
     @Override

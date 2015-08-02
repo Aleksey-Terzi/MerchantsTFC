@@ -3,12 +3,13 @@ package com.aleksey.merchants.Render.Blocks;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 
 import org.lwjgl.opengl.GL11;
 
-import com.aleksey.merchants.TileEntities.TileEntityStall;
+import com.aleksey.merchants.Blocks.Devices.BlockStall;
+import com.bioxx.tfc.api.TFCBlocks;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
@@ -29,7 +30,7 @@ public class RenderStall implements ISimpleBlockRenderingHandler
     @Override
     public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer)
     {
-        renderer.overrideBlockTexture = Block.getBlockFromName("planks").getIcon(0, 0);
+        renderer.overrideBlockTexture = getWoodTexture(block);
         
         for(int i = 0; i < _caseBounds.length; i++)
         {
@@ -48,7 +49,7 @@ public class RenderStall implements ISimpleBlockRenderingHandler
     @Override
     public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer)
     {
-        renderer.overrideBlockTexture = Block.getBlockFromName("planks").getIcon(0, 0);
+        renderer.overrideBlockTexture = getWoodTexture(block);
         
         for(int i = 0; i < _caseBounds.length; i++)
         {
@@ -113,5 +114,15 @@ public class RenderStall implements ISimpleBlockRenderingHandler
     private static void setBound(Bound bound, RenderBlocks renderer)
     {
         renderer.setRenderBounds(bound.MinX, bound.MinY, bound.MinZ, bound.MaxX, bound.MaxY, bound.MaxZ);
+    }
+    
+    private static IIcon getWoodTexture(Block block)
+    {
+        BlockStall stall = (BlockStall)block;
+        int woodIndex = stall.getWoodIndex();
+        
+        return woodIndex < 16
+                ? TFCBlocks.Planks.getIcon(0, woodIndex)
+                : TFCBlocks.Planks2.getIcon(0, woodIndex - 16);
     }
 }

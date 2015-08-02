@@ -26,25 +26,60 @@ public class Recipes
     
     public static void registerRecipes()
     {
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockList.Warehouse, 1), new Object[] { "ppp", "pfp", "ppp", Character.valueOf('p'), "woodLumber", Character.valueOf('f'), Items.feather }));
-
+        registerWarehouseRecipes();
         registerStallRecipes();
+        registerStorageRackRecipes();
+    }
+    
+    private static void registerWarehouseRecipes()
+    {
+        for(int i = 0; i < 16; i++)
+        {
+            ItemStack warehouse = new ItemStack(BlockList.Warehouse, 1, i);
+            ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
+            
+            GameRegistry.addRecipe(warehouse, new Object[] { "ppp", "pfp", "ppp", Character.valueOf('p'), lumber, Character.valueOf('f'), Items.feather });
+        }
+
+        for(int i = 16; i < Global.WOOD_ALL.length; i++)
+        {
+            ItemStack warehouse = new ItemStack(BlockList.Warehouse2, 1, i - 16);
+            ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
+            
+            GameRegistry.addRecipe(warehouse, new Object[] { "ppp", "pfp", "ppp", Character.valueOf('p'), lumber, Character.valueOf('f'), Items.feather });
+        } 
     }
     
     private static void registerStallRecipes()
-    {
-        ItemStack[] clothes = new ItemStack[] {
-            new ItemStack(TFCItems.WoolCloth, 1),
-            new ItemStack(TFCItems.SilkCloth, 1),
-            new ItemStack(TFCItems.BurlapCloth, 1),
-        };
-        
-        ItemStack stall = new ItemStack(BlockList.Stall, 1);
-        
-        for(int i = 0; i < clothes.length; i++)
+    {        
+        for(int i = 0; i < BlockList.Stalls.length; i++)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(stall, new Object[] { "pcp", "pbp", "ppp", Character.valueOf('p'), "woodLumber", Character.valueOf('c'), clothes[i], Character.valueOf('b'), Items.writable_book }));
+            ItemStack stall = new ItemStack(BlockList.Stalls[i], 1);
+            ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
+            
+            GameRegistry.addRecipe(new ShapedOreRecipe(stall, new Object[] { "pcp", "pbp", "ppp", Character.valueOf('p'), lumber, Character.valueOf('c'), "materialCloth", Character.valueOf('b'), Items.writable_book }));
         }
+    }
+    
+    private static void registerStorageRackRecipes()
+    {
+        ItemStack stick = new ItemStack(Items.stick);
+        
+        for(int i = 0; i < 16; i++)
+        {
+            ItemStack storageRack = new ItemStack(BlockList.StorageRack, 1, i);
+            ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
+            
+            GameRegistry.addRecipe(storageRack, new Object[] { "sss", "l l", "lll", Character.valueOf('s'), Items.stick, Character.valueOf('l'), lumber});
+        }
+
+        for(int i = 16; i < Global.WOOD_ALL.length; i++)
+        {
+            ItemStack storageRack = new ItemStack(BlockList.StorageRack2, 1, i - 16);
+            ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
+            
+            GameRegistry.addRecipe(storageRack, new Object[] { "sss", "l l", "lll", Character.valueOf('s'), Items.stick, Character.valueOf('l'), lumber});
+        } 
     }
     
     public static boolean areAnvilRecipesRegistered()

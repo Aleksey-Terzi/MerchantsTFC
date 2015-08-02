@@ -19,8 +19,41 @@ metal.Nickel=Nickel
 metal.Steel=Steel
 metal.BlackSteel=BlackSteel
 
-tile.Stall.name=Stall
-tile.Warehouse.name=Warehouse
+tile.Stall.name=Oak Stall
+tile.Stall.Aspen.name=Aspen Stall
+tile.Stall.Birch.name=Birch Stall
+tile.Stall.Chestnut.name=Chestnut Stall
+tile.Stall.Douglas Fir.name=Douglas Fir Stall
+tile.Stall.Hickory.name=Hickory Stall
+tile.Stall.Maple.name=Maple Stall
+tile.Stall.Ash.name=Ash Stall
+tile.Stall.Pine.name=Pine Stall
+tile.Stall.Sequoia.name=Sequoia Stall
+tile.Stall.Spruce.name=Spruce Stall
+tile.Stall.Sycamore.name=Sycamore Stall
+tile.Stall.White Cedar.name=White Cedar Stall
+tile.Stall.White Elm.name=White Elm Stall
+tile.Stall.Willow.name=Willow Stall
+tile.Stall.Kapok.name=Kapok Stall
+tile.Stall.Acacia.name=Acacia Stall
+
+tile.Warehouse.name=Oak Warehouse
+tile.Warehouse.Aspen.name=Aspen Warehouse
+tile.Warehouse.Birch.name=Birch Warehouse
+tile.Warehouse.Chestnut.name=Chestnut Warehouse
+tile.Warehouse.Douglas Fir.name=Douglas Fir Warehouse
+tile.Warehouse.Hickory.name=Hickory Warehouse
+tile.Warehouse.Maple.name=Maple Warehouse
+tile.Warehouse.Ash.name=Ash Warehouse
+tile.Warehouse.Pine.name=Pine Warehouse
+tile.Warehouse.Sequoia.name=Sequoia Warehouse
+tile.Warehouse.Spruce.name=Spruce Warehouse
+tile.Warehouse.Sycamore.name=Sycamore Warehouse
+tile.Warehouse.White Cedar.name=White Cedar Warehouse
+tile.Warehouse.White Elm.name=White Elm Warehouse
+tile.Warehouse.Willow.name=Willow Warehouse
+tile.Warehouse.Kapok.name=Kapok Warehouse
+tile.Warehouse2.Acacia.name=Acacia Warehouse
 
 tile.AnvilDie.Copper.name=Copper Anvil Die
 tile.AnvilDie.Copper2.name=Copper Anvil Die
@@ -202,3 +235,5 @@ gui.plans.anvildie=Anvil Die
 gui.plans.flan=Flan
 
 gui.StorageRack.Title=Storage Rack
+
+itemGroup.Merchants=(TFC) Merchants Addon

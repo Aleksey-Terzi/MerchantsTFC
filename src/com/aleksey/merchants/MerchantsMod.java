@@ -1,9 +1,12 @@
 package com.aleksey.merchants;
 
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.oredict.OreDictionary;
 
 import com.aleksey.merchants.Core.BlockList;
 import com.aleksey.merchants.Core.ItemList;
+import com.aleksey.merchants.Core.MerchantsTabs;
 import com.aleksey.merchants.Core.Recipes;
 import com.aleksey.merchants.Core.Player.PlayerTracker;
 import com.aleksey.merchants.Handlers.ChunkEventHandler;
@@ -11,6 +14,7 @@ import com.aleksey.merchants.Handlers.Network.DieCopyPacket;
 import com.aleksey.merchants.Handlers.Network.InitClientWorldPacket;
 import com.aleksey.merchants.Helpers.WarehouseManager;
 import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.api.TFCItems;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -43,6 +47,8 @@ public class MerchantsMod
                 
         ItemList.Setup();
         
+        MerchantsTabs.MainTab.setTabIconItemStack(new ItemStack(BlockList.Stalls[0]));
+        
         proxy.registerGuiHandler();
     }
   
@@ -59,6 +65,7 @@ public class MerchantsMod
         
         proxy.registerRenderInformation();
         
+        OreDictionary.registerOre("materialCloth", new ItemStack(TFCItems.BurlapCloth));
         Recipes.registerRecipes();
         
         WarehouseManager.init();

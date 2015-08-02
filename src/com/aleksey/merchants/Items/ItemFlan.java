@@ -4,9 +4,8 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 
-import com.aleksey.merchants.Core.CoinInfo;
 import com.aleksey.merchants.Core.Constants;
-import com.bioxx.tfc.Core.TFCTabs;
+import com.aleksey.merchants.Core.MerchantsTabs;
 import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
@@ -21,7 +20,7 @@ public class ItemFlan extends ItemTerra
         super();
         
         setMaxDamage(0);
-        setCreativeTab(TFCTabs.TFCMisc);
+        setCreativeTab(MerchantsTabs.MainTab);
         setHasSubtypes(true);
         
         MetaNames = new String[Constants.Coins.length];
