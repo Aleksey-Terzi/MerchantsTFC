@@ -63,14 +63,14 @@ public class Recipes
     
     private static void registerStorageRackRecipes()
     {
-        ItemStack stick = new ItemStack(Items.stick);
+        ItemStack stick = new ItemStack(TFCItems.Stick);
         
         for(int i = 0; i < 16; i++)
         {
             ItemStack storageRack = new ItemStack(BlockList.StorageRack, 1, i);
             ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
             
-            GameRegistry.addRecipe(storageRack, new Object[] { "sss", "l l", "lll", Character.valueOf('s'), Items.stick, Character.valueOf('l'), lumber});
+            GameRegistry.addRecipe(storageRack, new Object[] { "sss", "l l", "lll", Character.valueOf('s'), stick, Character.valueOf('l'), lumber});
         }
 
         for(int i = 16; i < Global.WOOD_ALL.length; i++)
@@ -78,7 +78,7 @@ public class Recipes
             ItemStack storageRack = new ItemStack(BlockList.StorageRack2, 1, i - 16);
             ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
             
-            GameRegistry.addRecipe(storageRack, new Object[] { "sss", "l l", "lll", Character.valueOf('s'), Items.stick, Character.valueOf('l'), lumber});
+            GameRegistry.addRecipe(storageRack, new Object[] { "sss", "l l", "lll", Character.valueOf('s'), stick, Character.valueOf('l'), lumber});
         } 
     }
     
