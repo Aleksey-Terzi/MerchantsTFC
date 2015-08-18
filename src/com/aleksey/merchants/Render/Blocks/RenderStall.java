@@ -43,7 +43,7 @@ public class RenderStall implements ISimpleBlockRenderingHandler
         
         setBound(_topBound, renderer);
         
-        renderInvBlock(block, 1, renderer);
+        renderInvBlock(block, 0, renderer);
     }
     
     @Override

@@ -1,6 +1,7 @@
 package com.aleksey.merchants.Blocks.Devices;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -62,7 +63,7 @@ public class BlockStall extends BlockTerraContainer
     @Override
     public IIcon getIcon(int side, int meta)
     {
-        return meta == 0 || RenderManager.instance.options.fancyGraphics ? _topEmptyIcon: _topIcon;
+        return meta == 0 || Minecraft.isFancyGraphicsEnabled() ? _topEmptyIcon : _topIcon;
     }
     
     @Override
