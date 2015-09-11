@@ -21,6 +21,6 @@ public class BlockCustomAnvilDie2 extends BlockCustomAnvilDie
     @Override
     public Block getLogBlock()
     {
-        return TFCBlocks.WoodVert2;
+        return TFCBlocks.woodVert2;
     }
 }

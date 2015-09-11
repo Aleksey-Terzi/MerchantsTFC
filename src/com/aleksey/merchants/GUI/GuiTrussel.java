@@ -101,7 +101,7 @@ public class GuiTrussel extends GuiContainerTFC
         
         DieCopyPacket packet = new DieCopyPacket();
 
-        TerraFirmaCraft.packetPipeline.sendToServer(packet);
+        TerraFirmaCraft.PACKET_PIPELINE.sendToServer(packet);
     }
     
     @Override

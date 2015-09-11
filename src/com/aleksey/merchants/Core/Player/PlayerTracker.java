@@ -20,7 +20,7 @@ public class PlayerTracker
     public void onPlayerLoggedIn(PlayerLoggedInEvent event)
     {
         AbstractPacket pkt = new InitClientWorldPacket();
-        TerraFirmaCraft.packetPipeline.sendTo(pkt, (EntityPlayerMP) event.player);
+        TerraFirmaCraft.PACKET_PIPELINE.sendTo(pkt, (EntityPlayerMP) event.player);
     }
 
     @SubscribeEvent

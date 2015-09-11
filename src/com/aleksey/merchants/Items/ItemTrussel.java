@@ -35,23 +35,23 @@ public class ItemTrussel extends ItemTerra
         setCreativeTab(MerchantsTabs.MainTab);
         setHasSubtypes(true);
         
-        MetaNames = new String[Constants.Dies.length];
+        metaNames = new String[Constants.Dies.length];
         
         for(int i = 0; i < Constants.Dies.length; i++)
-            MetaNames[i] = Constants.Dies[i].DieName;
+            metaNames[i] = Constants.Dies[i].DieName;
     }
     
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister registerer)
     {
-        _trusselIcons = new IIcon[MetaNames.length];
-        _trusselWithDieIcons = new IIcon[MetaNames.length];
+        _trusselIcons = new IIcon[metaNames.length];
+        _trusselWithDieIcons = new IIcon[metaNames.length];
 
-        for(int i = 0; i < MetaNames.length; i++)
+        for(int i = 0; i < metaNames.length; i++)
         {
-            _trusselIcons[i] = registerer.registerIcon("merchants:trussels/Trussel" + MetaNames[i]);
-            _trusselWithDieIcons[i] = registerer.registerIcon("merchants:trussels/TrusselWithDie" + MetaNames[i]);
+            _trusselIcons[i] = registerer.registerIcon("merchants:trussels/Trussel" + metaNames[i]);
+            _trusselWithDieIcons[i] = registerer.registerIcon("merchants:trussels/TrusselWithDie" + metaNames[i]);
         }
         
         this.itemIcon = _trusselIcons[0];        

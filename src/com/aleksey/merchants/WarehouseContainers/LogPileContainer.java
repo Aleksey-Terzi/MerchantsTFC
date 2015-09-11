@@ -145,7 +145,7 @@ public class LogPileContainer extends ChestContainer
         int y = payTileEntity.TileEntity.yCoord + 1;
         int z = payTileEntity.TileEntity.zCoord;
         
-        world.setBlock(x, y, z, TFCBlocks.LogPile, 0, 3);
+        world.setBlock(x, y, z, TFCBlocks.logPile, 0, 3);
         
         Item item = payItemStack.getItem();
         

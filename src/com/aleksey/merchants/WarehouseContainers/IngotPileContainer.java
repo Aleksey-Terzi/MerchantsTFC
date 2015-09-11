@@ -88,7 +88,7 @@ public class IngotPileContainer extends Container
         
         ingotPile.injectContents(0, -quantity);
 
-        world.notifyBlockOfNeighborChange(ingotPile.xCoord, ingotPile.yCoord + 1, ingotPile.zCoord, TFCBlocks.IngotPile);
+        world.notifyBlockOfNeighborChange(ingotPile.xCoord, ingotPile.yCoord + 1, ingotPile.zCoord, TFCBlocks.ingotPile);
 
         if (inventory.getStackInSlot(0).stackSize < 1)
             world.setBlockToAir(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord);
@@ -116,14 +116,14 @@ public class IngotPileContainer extends Container
             ingotPile.injectContents(0, currentQuantity);
             ingotPile.validate();
     
-            world.addBlockEvent(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord, TFCBlocks.IngotPile, 0, 0);
+            world.addBlockEvent(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord, TFCBlocks.ingotPile, 0, 0);
             
             totalQuantity -= currentQuantity;
         }
         
         if (totalQuantity > 0)
         {
-            world.setBlock(ingotPile.xCoord, ingotPile.yCoord + 1, ingotPile.zCoord, TFCBlocks.IngotPile, 0, 0x2);
+            world.setBlock(ingotPile.xCoord, ingotPile.yCoord + 1, ingotPile.zCoord, TFCBlocks.ingotPile, 0, 0x2);
             
             Item item = payItemStack.getItem();
             
@@ -131,7 +131,7 @@ public class IngotPileContainer extends Container
             
             ((IInventory)ingotPile).setInventorySlotContents(0, new ItemStack(item, totalQuantity, 0));
             
-            ingotPile.setType(MetalRegistry.instance.getMetalFromItem(item).Name);
+            ingotPile.setType(MetalRegistry.instance.getMetalFromItem(item).name);
             
             world.markBlockForUpdate(ingotPile.xCoord, ingotPile.yCoord, ingotPile.zCoord);
             

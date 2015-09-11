@@ -160,7 +160,7 @@ public class BlockCustomAnvilDie extends BlockTerraContainer
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int metadata)
     {
-        EntityItem ei = new EntityItem(world, x + 0.5, y + 0.5, z + 0.5, new ItemStack(TFCItems.Logs, 1, getLogsMetadata(metadata)));
+        EntityItem ei = new EntityItem(world, x + 0.5, y + 0.5, z + 0.5, new ItemStack(TFCItems.logs, 1, getLogsMetadata(metadata)));
         ei.motionX = 0;
         ei.motionY = 0;
         ei.motionZ = 0;
@@ -176,6 +176,6 @@ public class BlockCustomAnvilDie extends BlockTerraContainer
     
     public Block getLogBlock()
     {
-        return TFCBlocks.WoodVert;
+        return TFCBlocks.woodVert;
     }
 }
