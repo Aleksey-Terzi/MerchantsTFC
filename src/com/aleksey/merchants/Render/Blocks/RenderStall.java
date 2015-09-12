@@ -122,7 +122,7 @@ public class RenderStall implements ISimpleBlockRenderingHandler
         int woodIndex = stall.getWoodIndex();
         
         return woodIndex < 16
-                ? TFCBlocks.Planks.getIcon(0, woodIndex)
-                : TFCBlocks.Planks2.getIcon(0, woodIndex - 16);
+                ? TFCBlocks.planks.getIcon(0, woodIndex)
+                : TFCBlocks.planks2.getIcon(0, woodIndex - 16);
     }
 }

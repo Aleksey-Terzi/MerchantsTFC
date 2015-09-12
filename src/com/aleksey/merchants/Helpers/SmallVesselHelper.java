@@ -212,28 +212,28 @@ public class SmallVesselHelper
     {
         if(_exceptions == null)
         {
-            _exceptions.add(TFCItems.BismuthIngot);
-            _exceptions.add(TFCItems.BismuthBronzeIngot);
-            _exceptions.add(TFCItems.BlackBronzeIngot);
-            _exceptions.add(TFCItems.BlackSteelIngot);
-            _exceptions.add(TFCItems.BlueSteelIngot);
-            _exceptions.add(TFCItems.BrassIngot);
-            _exceptions.add(TFCItems.BronzeIngot);
-            _exceptions.add(TFCItems.CopperIngot);
-            _exceptions.add(TFCItems.GoldIngot);
-            _exceptions.add(TFCItems.WroughtIronIngot);
-            _exceptions.add(TFCItems.LeadIngot);
-            _exceptions.add(TFCItems.NickelIngot);
-            _exceptions.add(TFCItems.PigIronIngot);
-            _exceptions.add(TFCItems.PlatinumIngot);
-            _exceptions.add(TFCItems.RedSteelIngot);
-            _exceptions.add(TFCItems.RoseGoldIngot);
-            _exceptions.add(TFCItems.SilverIngot);
-            _exceptions.add(TFCItems.SteelIngot);
-            _exceptions.add(TFCItems.BismuthIngot);
-            _exceptions.add(TFCItems.SterlingSilverIngot);
-            _exceptions.add(TFCItems.TinIngot);
-            _exceptions.add(TFCItems.ZincIngot);
+            _exceptions.add(TFCItems.bismuthIngot);
+            _exceptions.add(TFCItems.bismuthBronzeIngot);
+            _exceptions.add(TFCItems.blackBronzeIngot);
+            _exceptions.add(TFCItems.blackSteelIngot);
+            _exceptions.add(TFCItems.blueSteelIngot);
+            _exceptions.add(TFCItems.brassIngot);
+            _exceptions.add(TFCItems.bronzeIngot);
+            _exceptions.add(TFCItems.copperIngot);
+            _exceptions.add(TFCItems.goldIngot);
+            _exceptions.add(TFCItems.wroughtIronIngot);
+            _exceptions.add(TFCItems.leadIngot);
+            _exceptions.add(TFCItems.nickelIngot);
+            _exceptions.add(TFCItems.pigIronIngot);
+            _exceptions.add(TFCItems.platinumIngot);
+            _exceptions.add(TFCItems.redSteelIngot);
+            _exceptions.add(TFCItems.roseGoldIngot);
+            _exceptions.add(TFCItems.silverIngot);
+            _exceptions.add(TFCItems.steelIngot);
+            _exceptions.add(TFCItems.bismuthIngot);
+            _exceptions.add(TFCItems.sterlingSilverIngot);
+            _exceptions.add(TFCItems.tinIngot);
+            _exceptions.add(TFCItems.zincIngot);
         }
         
         Item item = itemstack.getItem();

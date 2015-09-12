@@ -220,7 +220,7 @@ public class GuiTrusselCreate extends GuiScreen
         packet.addAcceptedTag(CoinHelper.TagName_Weight);
         packet.addAcceptedTag(CoinHelper.TagName_Die);
 
-        TerraFirmaCraft.packetPipeline.sendToServer(packet);
+        TerraFirmaCraft.PACKET_PIPELINE.sendToServer(packet);
 
         Minecraft.getMinecraft().displayGuiScreen(null);
     }

@@ -36,7 +36,7 @@ public class Recipes
         for(int i = 0; i < 16; i++)
         {
             ItemStack warehouse = new ItemStack(BlockList.Warehouse, 1, i);
-            ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
+            ItemStack lumber = new ItemStack(TFCItems.singlePlank, 1, i);
             
             GameRegistry.addRecipe(warehouse, new Object[] { "ppp", "pfp", "ppp", Character.valueOf('p'), lumber, Character.valueOf('f'), Items.feather });
         }
@@ -44,7 +44,7 @@ public class Recipes
         for(int i = 16; i < Global.WOOD_ALL.length; i++)
         {
             ItemStack warehouse = new ItemStack(BlockList.Warehouse2, 1, i - 16);
-            ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
+            ItemStack lumber = new ItemStack(TFCItems.singlePlank, 1, i);
             
             GameRegistry.addRecipe(warehouse, new Object[] { "ppp", "pfp", "ppp", Character.valueOf('p'), lumber, Character.valueOf('f'), Items.feather });
         } 
@@ -55,7 +55,7 @@ public class Recipes
         for(int i = 0; i < BlockList.Stalls.length; i++)
         {
             ItemStack stall = new ItemStack(BlockList.Stalls[i], 1);
-            ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
+            ItemStack lumber = new ItemStack(TFCItems.singlePlank, 1, i);
             
             GameRegistry.addRecipe(new ShapedOreRecipe(stall, new Object[] { "pcp", "pbp", "ppp", Character.valueOf('p'), lumber, Character.valueOf('c'), "materialCloth", Character.valueOf('b'), Items.writable_book }));
         }
@@ -63,12 +63,12 @@ public class Recipes
     
     private static void registerStorageRackRecipes()
     {
-        ItemStack stick = new ItemStack(TFCItems.Stick);
+        ItemStack stick = new ItemStack(TFCItems.stick);
         
         for(int i = 0; i < 16; i++)
         {
             ItemStack storageRack = new ItemStack(BlockList.StorageRack, 1, i);
-            ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
+            ItemStack lumber = new ItemStack(TFCItems.singlePlank, 1, i);
             
             GameRegistry.addRecipe(storageRack, new Object[] { "sss", "l l", "lll", Character.valueOf('s'), stick, Character.valueOf('l'), lumber});
         }
@@ -76,7 +76,7 @@ public class Recipes
         for(int i = 16; i < Global.WOOD_ALL.length; i++)
         {
             ItemStack storageRack = new ItemStack(BlockList.StorageRack2, 1, i - 16);
-            ItemStack lumber = new ItemStack(TFCItems.SinglePlank, 1, i);
+            ItemStack lumber = new ItemStack(TFCItems.singlePlank, 1, i);
             
             GameRegistry.addRecipe(storageRack, new Object[] { "sss", "l l", "lll", Character.valueOf('s'), stick, Character.valueOf('l'), lumber});
         } 

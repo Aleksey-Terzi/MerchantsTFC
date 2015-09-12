@@ -475,7 +475,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setByte("Action", _actionId_Buy);
         
-        nbt.setString("playerID", PlayerManagerTFC.getInstance().getClientPlayer().PlayerUUID.toString());
+        nbt.setString("playerID", PlayerManagerTFC.getInstance().getClientPlayer().playerUUID.toString());
         
         NBTTagCompound itemTag = new NBTTagCompound();
         itemStack.writeToNBT(itemTag);
@@ -490,7 +490,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
     private void actionHandlerBuy(NBTTagCompound nbt)
     {
     	UUID actionPlayerID = UUID.fromString(nbt.getString("playerID"));
-    	UUID playerID = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(this.entityplayer).PlayerUUID;
+    	UUID playerID = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(this.entityplayer).playerUUID;
     	
     	if(!actionPlayerID.equals(playerID))
     		return;
@@ -509,7 +509,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setByte("Action", _actionId_SelectLimit);
         
-        nbt.setString("playername", PlayerManagerTFC.getInstance().getClientPlayer().Name);
+        nbt.setString("playername", PlayerManagerTFC.getInstance().getClientPlayer().playerName);
         nbt.setInteger("GoodSlotIndex", goodSlotIndex);
         
         this.broadcastPacketInRange(this.createDataPacket(nbt));
@@ -534,7 +534,7 @@ public class TileEntityStall extends NetworkTileEntity implements IInventory
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setByte("Action", _actionId_SetLimit);
         
-        nbt.setString("playername", PlayerManagerTFC.getInstance().getClientPlayer().Name);
+        nbt.setString("playername", PlayerManagerTFC.getInstance().getClientPlayer().playerName);
         nbt.setInteger("GoodSlotIndex", goodSlotIndex);
         
         if(limit != null)

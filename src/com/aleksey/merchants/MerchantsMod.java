@@ -55,8 +55,8 @@ public class MerchantsMod
     @EventHandler
     public void initialize(FMLInitializationEvent event)
     {
-        TerraFirmaCraft.packetPipeline.registerPacket(InitClientWorldPacket.class);
-        TerraFirmaCraft.packetPipeline.registerPacket(DieCopyPacket.class);
+        TerraFirmaCraft.PACKET_PIPELINE.registerPacket(InitClientWorldPacket.class);
+        TerraFirmaCraft.PACKET_PIPELINE.registerPacket(DieCopyPacket.class);
         
         FMLCommonHandler.instance().bus().register(new PlayerTracker());
         
@@ -65,7 +65,7 @@ public class MerchantsMod
         
         proxy.registerRenderInformation();
         
-        OreDictionary.registerOre("materialCloth", new ItemStack(TFCItems.BurlapCloth));
+        OreDictionary.registerOre("materialCloth", new ItemStack(TFCItems.burlapCloth));
         Recipes.registerRecipes();
         
         WarehouseManager.init();

@@ -31,22 +31,22 @@ public class ItemCoin extends ItemTerra
         setCreativeTab(MerchantsTabs.MainTab);
         setHasSubtypes(true);
         
-        MetaNames = new String[Constants.Coins.length];
+        metaNames = new String[Constants.Coins.length];
         
         for(int i = 0; i < Constants.Coins.length; i++)
-            MetaNames[i] = Constants.Coins[i].CoinName;
+            metaNames[i] = Constants.Coins[i].CoinName;
     }
     
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister registerer)
     {
-        MetaIcons = new IIcon[MetaNames.length];
+        metaIcons = new IIcon[metaNames.length];
 
-        for(int i = 0; i < MetaNames.length; i++)
-            MetaIcons[i] = registerer.registerIcon("merchants:coins/Coin" + MetaNames[i]);
+        for(int i = 0; i < metaNames.length; i++)
+            metaIcons[i] = registerer.registerIcon("merchants:coins/Coin" + metaNames[i]);
         
-        this.itemIcon = MetaIcons[0];
+        this.itemIcon = metaIcons[0];
         
         MinecraftForgeClient.registerItemRenderer(this, new CoinItemRenderer());
     }

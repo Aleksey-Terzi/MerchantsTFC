@@ -29,22 +29,22 @@ public class ItemAnvilDie extends ItemTerra
         setCreativeTab(MerchantsTabs.MainTab);
         setHasSubtypes(true);
         
-        MetaNames = new String[Constants.Dies.length];
+        metaNames = new String[Constants.Dies.length];
         
         for(int i = 0; i < Constants.Dies.length; i++)
-            MetaNames[i] = Constants.Dies[i].DieName;
+            metaNames[i] = Constants.Dies[i].DieName;
     }
     
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister registerer)
     {
-        MetaIcons = new IIcon[MetaNames.length];
+        metaIcons = new IIcon[metaNames.length];
 
-        for(int i = 0; i < MetaNames.length; i++)
-            MetaIcons[i] = registerer.registerIcon("merchants:anvildies/AnvilDie" + MetaNames[i]);
+        for(int i = 0; i < metaNames.length; i++)
+            metaIcons[i] = registerer.registerIcon("merchants:anvildies/AnvilDie" + metaNames[i]);
         
-        this.itemIcon = MetaIcons[0];
+        this.itemIcon = metaIcons[0];
     }
     
     @Override
@@ -73,14 +73,14 @@ public class ItemAnvilDie extends ItemTerra
         
         Block block = world.getBlock(x, y, z);
         
-        if(block != TFCBlocks.WoodVert && block != TFCBlocks.WoodVert2)
+        if(block != TFCBlocks.woodVert && block != TFCBlocks.woodVert2)
             return false;
         
         int meta = world.getBlockMetadata(x, y, z);
         
         int anvilDieIndex = itemstack.getItemDamage() * 2;
         
-        if(block == TFCBlocks.WoodVert2)
+        if(block == TFCBlocks.woodVert2)
             anvilDieIndex++;
         
         world.setBlock( x, y, z, BlockList.AnvilDies[anvilDieIndex], meta, 0x2);

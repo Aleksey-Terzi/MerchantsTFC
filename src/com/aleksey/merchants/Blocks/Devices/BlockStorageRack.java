@@ -50,8 +50,8 @@ public class BlockStorageRack extends BlockTerraContainer
     public IIcon getIcon(int side, int meta)
     {
         return _startWoodIndex == 0
-            ? TFCBlocks.Planks.getIcon(side, meta)
-            : TFCBlocks.Planks2.getIcon(side, meta);
+            ? TFCBlocks.planks.getIcon(side, meta)
+            : TFCBlocks.planks2.getIcon(side, meta);
     }
 
     @SideOnly(Side.CLIENT)
