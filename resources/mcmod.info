@@ -11,6 +11,8 @@
   "credits": "",
   "logoFile": "",
   "screenshots": [],
-  "dependencies": []
+  "requiredMods": [ "terrafirmacraft"],
+  "dependencies": ["terrafirmacraft"],
+  "dependants": []
 }
 ]
